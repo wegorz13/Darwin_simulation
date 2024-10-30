@@ -4,11 +4,11 @@ import agh.ics.oop.model.MoveDirection;
 import java.util.Arrays;
 
 public class OptionsParser {
-    public static MoveDirection[] parse(String[] args) {
-        MoveDirection[] directions = new MoveDirection[args.length];
+    public static MoveDirection[] parse(String[] moves) {
+        MoveDirection[] directions = new MoveDirection[moves.length];
         int j = 0;
-        for (String arg : args) {
-            switch (arg) {
+        for (String move : moves) {
+            switch (move) {
                 case "f" -> directions[j++] = MoveDirection.FORWARD;
                 case "b" -> directions[j++] = MoveDirection.BACKWARD;
                 case "r" -> directions[j++] = MoveDirection.RIGHT;
