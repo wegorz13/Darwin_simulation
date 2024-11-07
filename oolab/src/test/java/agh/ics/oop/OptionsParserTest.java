@@ -3,62 +3,65 @@ package agh.ics.oop;
 import agh.ics.oop.model.MoveDirection;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class OptionsParserTest {
     @Test
     void emptyMoves() {
         String[] moves = {};
-        MoveDirection[] correct = {};
+        List<MoveDirection> correct = new LinkedList<>();
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void invalidMove() {
         String[] moves = {"x"};
-        MoveDirection[] correct = {};
+        List<MoveDirection> correct = new LinkedList<>();
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void moveForward() {
         String[] moves = {"f"};
-        MoveDirection[] correct = {MoveDirection.FORWARD};
+        List<MoveDirection> correct = List.of(MoveDirection.FORWARD);
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void moveBackward() {
         String[] moves = {"b"};
-        MoveDirection[] correct = {MoveDirection.BACKWARD};
+        List<MoveDirection> correct = List.of(MoveDirection.BACKWARD);
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void moveLeft() {
         String[] moves = {"l"};
-        MoveDirection[] correct = {MoveDirection.LEFT};
+        List<MoveDirection> correct = List.of(MoveDirection.LEFT);
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void moveRight() {
         String[] moves = {"r"};
-        MoveDirection[] correct = {MoveDirection.RIGHT};
+        List<MoveDirection> correct = List.of(MoveDirection.RIGHT);
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 
     @Test
     void allDirectionsWithInvalidMoveBetween() {
         String[] moves = {"f", "b", "x", "l", "r"};
-        MoveDirection[] correct = {MoveDirection.FORWARD, MoveDirection.BACKWARD, MoveDirection.LEFT, MoveDirection.RIGHT};
+        List<MoveDirection> correct = List.of(MoveDirection.FORWARD, MoveDirection.BACKWARD, MoveDirection.LEFT, MoveDirection.RIGHT);
 
-        assertArrayEquals(correct, OptionsParser.parse(moves));
+        assertEquals(correct, OptionsParser.parse(moves));
     }
 }
