@@ -5,6 +5,7 @@ import agh.ics.oop.model.MoveDirection;
 import agh.ics.oop.model.Vector2d;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Simulation {
@@ -31,10 +32,10 @@ public class Simulation {
     }
 
     public List<Animal> getAnimals() {
-        return this.animals;
+        return new ArrayList<>(this.animals);
     }
 
     public List<MoveDirection> getMoves() {
-        return this.moves;
+        return new LinkedList<>(this.moves);
     }
 }
