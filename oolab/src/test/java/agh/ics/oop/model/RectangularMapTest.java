@@ -7,19 +7,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RectangularMapTest {
     @Test
-    void place() {
+    void place() throws IncorrectPositionException {
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
         Animal animal2 = new Animal(new Vector2d(2, 2));
         Animal animal3 = new Animal(new Vector2d(5, 3));
 
         assertTrue(map.place(animal1));
-        assertFalse(map.place(animal2));
-        assertFalse(map.place(animal3));
+        assertThrows(IncorrectPositionException.class, () -> map.place(animal2));
+        assertThrows(IncorrectPositionException.class, () -> map.place(animal3));
     }
 
     @Test
-    void isOccupied() {
+    void isOccupied() throws IncorrectPositionException{
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
 
@@ -31,7 +31,7 @@ class RectangularMapTest {
     }
 
     @Test
-    void objectAt() {
+    void objectAt() throws IncorrectPositionException{
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
 
@@ -42,7 +42,7 @@ class RectangularMapTest {
     }
 
     @Test
-    void canMoveTo() {
+    void canMoveTo() throws IncorrectPositionException{
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
 
@@ -59,7 +59,7 @@ class RectangularMapTest {
     }
 
     @Test
-    void move() {
+    void move() throws IncorrectPositionException{
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
         Animal animal2 = new Animal(new Vector2d(2, 2));
@@ -75,7 +75,7 @@ class RectangularMapTest {
     }
 
     @Test
-    void testToString() {
+    void testToString() throws IncorrectPositionException{
         RectangularMap map = new RectangularMap(5, 5);
         Animal animal1 = new Animal(new Vector2d(2, 2));
         Animal animal2 = new Animal(new Vector2d(3, 2));

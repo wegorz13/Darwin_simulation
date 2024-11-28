@@ -1,5 +1,6 @@
 package agh.ics.oop;
 
+import agh.ics.oop.model.IncorrectPositionException;
 import agh.ics.oop.model.MoveDirection;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +21,8 @@ class OptionsParserTest {
     @Test
     void invalidMove() {
         String[] moves = {"x"};
-        List<MoveDirection> correct = new LinkedList<>();
 
-        assertEquals(correct, OptionsParser.parse(moves));
+        assertThrows(IllegalArgumentException.class, () -> OptionsParser.parse((moves)));
     }
 
     @Test
@@ -58,8 +58,8 @@ class OptionsParserTest {
     }
 
     @Test
-    void allDirectionsWithInvalidMoveBetween() {
-        String[] moves = {"f", "b", "x", "l", "r"};
+    void allDirections() {
+        String[] moves = {"f", "b", "l", "r"};
         List<MoveDirection> correct = List.of(MoveDirection.FORWARD, MoveDirection.BACKWARD, MoveDirection.LEFT, MoveDirection.RIGHT);
 
         assertEquals(correct, OptionsParser.parse(moves));
