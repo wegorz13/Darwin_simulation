@@ -1,6 +1,6 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.model.util.Pair;
+import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.RandomPositionGenerator;
 
 import java.util.HashMap;
@@ -19,7 +19,6 @@ public class GrassField extends AbstractWorldMap {
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
-        changeCorners();
     }
 
     @Override
@@ -39,10 +38,10 @@ public class GrassField extends AbstractWorldMap {
     @Override
     public void move(Animal animal, MoveDirection direction) {
         super.move(animal, direction);
-        changeCorners();
     }
 
-    private void changeCorners() {
+    @Override
+    public Boundary getCurrentBounds()  {
         List<WorldElement> elements = getElements();
         Vector2d lowerCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
         Vector2d upperCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
@@ -50,6 +49,6 @@ public class GrassField extends AbstractWorldMap {
             lowerCorner = lowerCorner.lowerLeft(element.getPosition());
             upperCorner = upperCorner.upperRight(element.getPosition());
         }
-        this.drawCorners = new Pair<>(lowerCorner, upperCorner);
+        return new Boundary(lowerCorner, upperCorner);
     }
 }
