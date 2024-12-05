@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Simulation {
+public class Simulation implements Runnable {
     private final List<Animal> animals;
     private final List<MoveDirection> moves;
     private final WorldMap map;
@@ -28,6 +28,7 @@ public class Simulation {
         }
     }
 
+    @Override
     public void run() {
         if (animals.isEmpty()) return;
 

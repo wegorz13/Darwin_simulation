@@ -36,7 +36,7 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
                     throw new NoSuchElementException("No more elements to generate.");
                 }
 
-                int randomIndex = generatedCount + rand.nextInt(permutationOfPositions.size() - generatedCount + 1);
+                int randomIndex = generatedCount + rand.nextInt(permutationOfPositions.size() - generatedCount);
                 swap(permutationOfPositions, generatedCount, randomIndex);
                 Vector2d position = permutationOfPositions.get(generatedCount);
                 generatedCount++;
