@@ -3,12 +3,11 @@ package agh.ics.oop.model;
 import agh.ics.oop.model.util.MapVisualizer;
 import agh.ics.oop.model.util.Boundary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 abstract class AbstractWorldMap implements WorldMap {
+    // Probability of collision: https://en.wikipedia.org/wiki/Universally_unique_identifier#Collisions
+    protected final UUID id = UUID.randomUUID();
     protected Vector2d leftDownCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
     protected Vector2d rightUpCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
     protected final Map<Vector2d, Animal> animals = new HashMap<>();
@@ -66,6 +65,11 @@ abstract class AbstractWorldMap implements WorldMap {
     @Override
     public Boundary getCurrentBounds() {
         return new Boundary(leftDownCorner, rightUpCorner);
+    }
+
+    @Override
+    public UUID getId() {
+        return this.id;
     }
 
     public void addListener(MapChangeListener listener) {

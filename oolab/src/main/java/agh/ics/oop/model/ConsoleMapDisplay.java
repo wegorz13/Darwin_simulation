@@ -5,8 +5,11 @@ public class ConsoleMapDisplay implements MapChangeListener{
 
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
-        System.out.println(message);
-        System.out.println(worldMap);
-        System.out.println(++updateCount);
+        synchronized (System.out) {
+            System.out.println("Map Id: " + worldMap.getId());
+            System.out.println(message);
+            System.out.println(worldMap);
+            System.out.println(++updateCount);
+        }
     }
 }
