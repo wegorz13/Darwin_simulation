@@ -28,8 +28,7 @@ public class SimulationPresenter implements MapChangeListener {
     private TextField moveList;
     @FXML
     private Label moveDescription;
-
-
+    
     public void setWorldMap(WorldMap map) {
         this.map = map;
     }
@@ -40,7 +39,7 @@ public class SimulationPresenter implements MapChangeListener {
         mapGrid.getRowConstraints().clear();
     }
 
-    public void drawMap() {
+    private void drawMap() {
         // clear grid
         clearGrid();
 
@@ -94,7 +93,7 @@ public class SimulationPresenter implements MapChangeListener {
             map.addListener(this);
             Simulation simulation = new Simulation(positions, directions, map);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
-            new Thread(engine::runSync).start();
+            new Thread(engine::runAsync).start();
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
