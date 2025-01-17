@@ -10,24 +10,36 @@ abstract class AbstractWorldMap implements WorldMap {
     protected final UUID id = UUID.randomUUID();
     protected Vector2d leftDownCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
     protected Vector2d rightUpCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    protected final Map<Vector2d, Animal> animals = new HashMap<>();
+    //sortujemy animale na tej samej pozycji rosnąco po energii
+    protected final Map<Vector2d, LinkedList<Animal>> animals = new HashMap<>();
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
     @Override
-    public boolean canMoveTo(Vector2d position) {
-        return (position.follows(this.leftDownCorner) && position.precedes(this.rightUpCorner) && !(objectAt(position) instanceof Animal));
+    public Vector2d canMoveTo(Vector2d position,MapDirection orientation) {
+        Vector2d newPosition = position.add(orientation.toUnitVector());
+
+        //zwraca poprawna pozycje, jak jest taka sama to zwierze musi zrobic 180
+        if (newPosition.getY()> rightUpCorner.getY() || newPosition.getY()< leftDownCorner.getY()){
+            return position;
+        }
+        else if (newPosition.getX() < leftDownCorner.getX()){
+            return new Vector2d(rightUpCorner.getX(), newPosition.getY());
+        }
+        else if (newPosition.getX() > rightUpCorner.getX()){
+            return new Vector2d(leftDownCorner.getY(), newPosition.getY());
+        }
+        return newPosition;
     }
 
     @Override
-    public boolean place(Animal animal) throws IncorrectPositionException {
-        if (canMoveTo(animal.getPosition())) {
-            animals.put(animal.getPosition(), animal);
-            mapChanged("Animal placed at %s".formatted(animal.getPosition()));
-            return true;
+    public void place(Animal animal)  {
+        Vector2d position = animal.getPosition();
+        this.animals.get(position).add(animal);
+        mapChanged("Animal placed at %s".formatted(position));
         }
-        throw new IncorrectPositionException(animal.getPosition());
-    }
+
+
 
     @Override
     public void move(Animal animal, MoveDirection direction) {
@@ -36,8 +48,8 @@ abstract class AbstractWorldMap implements WorldMap {
 
         Vector2d fromPosition = animal.getPosition();
         animals.remove(animal.getPosition());
-        animal.move(direction, this);
-        animals.put(animal.getPosition(), animal);
+        animal.move( this);
+        this.animals.get(animal.getPosition()).add(animal);
         mapChanged("Animal moved from %s to %s".formatted(fromPosition, animal.getPosition()));
     }
 
@@ -84,4 +96,8 @@ abstract class AbstractWorldMap implements WorldMap {
         for (MapChangeListener listener : listeners)
             listener.mapChanged(this, message);
     }
+
+
+
+
 }

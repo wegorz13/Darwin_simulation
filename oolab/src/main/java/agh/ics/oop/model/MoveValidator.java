@@ -11,5 +11,5 @@ public interface MoveValidator {
      *            The position checked for the movement possibility.
      * @return True if the object can move to that position.
      */
-    boolean canMoveTo(Vector2d position);
+    Vector2d canMoveTo(Vector2d position,MapDirection orientation);
 }
