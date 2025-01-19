@@ -27,7 +27,7 @@ abstract class AbstractWorldMap implements WorldMap {
             return new Vector2d(rightUpCorner.getX(), newPosition.getY());
         }
         else if (newPosition.getX() > rightUpCorner.getX()){
-            return new Vector2d(leftDownCorner.getY(), newPosition.getY());
+            return new Vector2d(leftDownCorner.getX(), newPosition.getY());
         }
         return newPosition;
     }

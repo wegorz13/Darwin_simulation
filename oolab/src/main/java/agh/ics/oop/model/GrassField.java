@@ -11,27 +11,32 @@ import java.util.Random;
 
 public class GrassField extends AbstractWorldMap {
     private final Map<Vector2d, Grass> grasses;
+    private final RandomPositionGenerator grassPositionGenerator;
     private final int genotypeLength;
-    private final int grassGrowth;
     private final int childCost;
     private final Vector2d jungleRightUpCorner;
     private final Vector2d jungleLeftDownCorner;
     private final int minMutations;
     private final int maxMutations;
     private final int grassCalory;
+    private final int readyToParent;
 
-    public GrassField(int numberOfAnimals,int numberOfGrass,int width, int height,int grassGrowth, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory) {
-        this.grassGrowth=grassGrowth;
+
+    public GrassField(int numberOfAnimals,int numberOfGrass,int width, int height,int grassGrowth, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent) {
         this.childCost=childCost;
         this.genotypeLength=genotypeLength;
         this.minMutations=minMutations;
         this.maxMutations=maxMutations;
         this.grassCalory=grassCalory;
+        this.readyToParent=readyToParent;
+
+        this.grasses = new HashMap<>();
+        this.grassPositionGenerator = new RandomPositionGenerator(width,height,grassGrowth,grasses);
 
         this.leftDownCorner = new Vector2d(0, 0);
         this.rightUpCorner = new Vector2d(width-1, height-1);
 
-        this.grasses = new HashMap<>();
+
 
         Random rand = new Random();
 
@@ -41,20 +46,21 @@ public class GrassField extends AbstractWorldMap {
         jungleLeftDownCorner = new Vector2d(width/2-jungleWidth/2, height/2-jungleHeight/2);
         jungleRightUpCorner = new Vector2d(jungleLeftDownCorner.getX()+jungleWidth, jungleLeftDownCorner.getY()+jungleHeight);
 
+        //place animals
         for (int i = 0; i < numberOfAnimals; i++) {
             Vector2d position = new Vector2d(rand.nextInt(width), rand.nextInt(height));
 
-            int[] genotype = new int[7];
-            for (int j = 0; j < 7; j++) {
-                genotype[j] = rand.nextInt(8); // Random integer between 0 and 7
+            int[] genotype = new int[genotypeLength];
+            for (int j = 0; j < genotypeLength; j++) {
+                genotype[j] = rand.nextInt(genotypeLength+1); // Random integer between 0 and 7
             }
 
-            this.place(new Animal(position,genotype,10,null,null));
+            this.place(new Animal(position,genotype,baseEnergy,null,null));
         }
 
         //jak dziala ten iterator, jak przejde petla for drugi raz to count sie resetuje?
         // trzeba by zapisac go w atrybucie do tworzenia roślin każdego dnia i dodać tworzenie trawy częściej na równiku
-        RandomPositionGenerator grassPositionGenerator = new RandomPositionGenerator(width, height, numberOfGrass);
+        RandomPositionGenerator grassPositionGenerator = new RandomPositionGenerator(width, height, numberOfGrass,grasses);
         for(Vector2d grassPosition : grassPositionGenerator) {
             this.grasses.put(grassPosition,new Grass(grassPosition));
         }
@@ -93,7 +99,7 @@ public class GrassField extends AbstractWorldMap {
 
     private Animal createAnimal(Animal mommyAnimal, Animal daddyAnimal) {
         int leftShare = (mommyAnimal.getEnergy() / (mommyAnimal.getEnergy() + daddyAnimal.getEnergy()));
-        int rightShare = genotypeLength -leftShare;
+        int rightShare = genotypeLength - leftShare;
 
         int[] leftGenes = mommyAnimal.getGenotype();
         int [] rightGenes = daddyAnimal.getGenotype();
@@ -110,7 +116,7 @@ public class GrassField extends AbstractWorldMap {
         int mutationNumber = rand.nextInt(minMutations,maxMutations);
         for (int i = 0; i < mutationNumber; i++) {
             int index = rand.nextInt(genotypeLength);
-            int mutation = rand.nextInt(8);
+            int mutation = (newGenotype[index]+rand.nextInt(genotypeLength))%genotypeLength;
             newGenotype[index] = mutation;
         }
 
@@ -157,7 +163,7 @@ public class GrassField extends AbstractWorldMap {
                 Animal mommyAnimal = animalsAtPosition.get(numberOfAnimals-1);
                 Animal daddyAnimal = animalsAtPosition.get(numberOfAnimals-2);
 
-                if (mommyAnimal.getEnergy()>3 && daddyAnimal.getEnergy()>1){
+                if (mommyAnimal.getEnergy()>readyToParent && daddyAnimal.getEnergy()>readyToParent){
                     Animal babyAnimal = createAnimal(mommyAnimal,daddyAnimal);
                     animalsAtPosition.add(babyAnimal);
                 }
@@ -169,8 +175,7 @@ public class GrassField extends AbstractWorldMap {
 
     private void pollutingStage(){
         //tylko przekleilem z konstruktora
-        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(rightUpCorner.getX()+1, rightUpCorner.getY()+1, grassGrowth);
-        for(Vector2d grassPosition : randomPositionGenerator) {
+        for(Vector2d grassPosition : grassPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
     }

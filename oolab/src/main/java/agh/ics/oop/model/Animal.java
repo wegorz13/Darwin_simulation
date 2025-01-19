@@ -1,6 +1,8 @@
 package agh.ics.oop.model;
 
 
+import java.util.Random;
+
 public class Animal implements  WorldElement {
     private MapDirection orientation = MapDirection.NORTH;
     private Vector2d position;
@@ -9,6 +11,8 @@ public class Animal implements  WorldElement {
     private int dayOfCycle=0;
     private final Animal mommy;
     private final Animal daddy;
+    private int age=0;
+    private final Random rand = new Random();
 
     public Animal() {
         this.genotype = new int[]{1, 0, 0, 1};
@@ -41,15 +45,21 @@ public class Animal implements  WorldElement {
     }
 
     public void move(MoveValidator validator) {
-        for (int i=0;i<this.genotype[this.dayOfCycle];i++) {
-            this.orientation = orientation.next();
-        }
+        this.age++;
 
-        Vector2d newPosition = validator.canMoveTo(this.position,this.orientation);
-        if (newPosition == this.position) {
-            this.orientation=orientation.next().next().next().next();
+        boolean moves = rand.nextInt(age+100)>age;
+
+        if (moves) {
+            for (int i=0;i<this.genotype[this.dayOfCycle];i++) {
+                this.orientation = orientation.next();
+            }
+
+            Vector2d newPosition = validator.canMoveTo(this.position,this.orientation);
+            if (newPosition == this.position) {
+                this.orientation=orientation.next().next().next().next();
+            }
+            this.position = newPosition;
         }
-        this.position = newPosition;
         this.energy-=1;
         this.dayOfCycle=(dayOfCycle+1)%genotype.length;
     }
