@@ -20,7 +20,7 @@ public class GrassField extends AbstractWorldMap {
     private final int maxMutations;
     private final int grassCalory;
     private final int readyToParent;
-
+    private int lordsDay=0;
 
     public GrassField(int numberOfAnimals,int numberOfGrass,int width, int height,int grassGrowth, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent) {
         this.childCost=childCost;
@@ -120,9 +120,6 @@ public class GrassField extends AbstractWorldMap {
             newGenotype[index] = mutation;
         }
 
-        mommyAnimal.giveBirth(childCost);
-        daddyAnimal.giveBirth(childCost);
-
         return new Animal(mommyAnimal.getPosition(),newGenotype,childCost*2,mommyAnimal,daddyAnimal);
     }
 
@@ -150,6 +147,7 @@ public class GrassField extends AbstractWorldMap {
         for (List<Animal> animalsAtPosition: animals.values()){
             for (Animal animal : animalsAtPosition){
                 if (animal.getEnergy()==0){
+                    animal.unlive(lordsDay);
                     animalsAtPosition.remove(animal);
                 }
             }
@@ -163,8 +161,10 @@ public class GrassField extends AbstractWorldMap {
                 Animal mommyAnimal = animalsAtPosition.get(numberOfAnimals-1);
                 Animal daddyAnimal = animalsAtPosition.get(numberOfAnimals-2);
 
-                if (mommyAnimal.getEnergy()>readyToParent && daddyAnimal.getEnergy()>readyToParent){
+                if (mommyAnimal.getEnergy()>=readyToParent && daddyAnimal.getEnergy()>=readyToParent){
                     Animal babyAnimal = createAnimal(mommyAnimal,daddyAnimal);
+                    mommyAnimal.giveBirth(childCost,babyAnimal);
+                    daddyAnimal.giveBirth(childCost,babyAnimal);
                     animalsAtPosition.add(babyAnimal);
                 }
 
@@ -174,7 +174,6 @@ public class GrassField extends AbstractWorldMap {
     }
 
     private void pollutingStage(){
-        //tylko przekleilem z konstruktora
         for(Vector2d grassPosition : grassPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
@@ -186,6 +185,7 @@ public class GrassField extends AbstractWorldMap {
         this.eatingStage();
         this.lovingStage();
         this.pollutingStage();
+        lordsDay+=1;
     }
 
 
