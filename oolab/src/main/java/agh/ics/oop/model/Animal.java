@@ -1,6 +1,8 @@
 package agh.ics.oop.model;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Animal implements  WorldElement {
@@ -11,13 +13,16 @@ public class Animal implements  WorldElement {
     private int dayOfCycle=0;
     private final Animal mommy;
     private final Animal daddy;
+    private final List<Animal> babies = new ArrayList<Animal>();
     private int age=0;
     private final Random rand = new Random();
+    private int dayOfDeath;
+    private int grassConsumed=0;
 
-    public Animal() {
-        this.genotype = new int[]{1, 0, 0, 1};
-        this.position = new Vector2d(2, 2);
-    }
+//    public Animal() {
+//        this.genotype = new int[]{1, 0, 0, 1};
+//        this.position = new Vector2d(2, 2);
+//    }
 
     public Animal(Vector2d position, int[] genotype, int energy, Animal mommy, Animal daddy) {
         this.position = position;
@@ -74,9 +79,15 @@ public class Animal implements  WorldElement {
 
     public void consume(int calory){
         this.energy+=calory;
+        this.grassConsumed++;
     }
 
-    public void giveBirth(int childCost){
+    public void giveBirth(int childCost, Animal baby){
         this.energy-=childCost;
+        this.babies.add(baby);
+    }
+
+    public void unlive(int dayOfSimulation){
+        this.dayOfDeath=dayOfSimulation;
     }
 }
