@@ -18,18 +18,20 @@ public class Animal implements  WorldElement {
     private final Random rand = new Random();
     private int dayOfDeath;
     private int grassConsumed=0;
+    private final int rightEdge;
 
 //    public Animal() {
 //        this.genotype = new int[]{1, 0, 0, 1};
 //        this.position = new Vector2d(2, 2);
 //    }
 
-    public Animal(Vector2d position, int[] genotype, int energy, Animal mommy, Animal daddy) {
+    public Animal(Vector2d position, int[] genotype, int energy, Animal mommy, Animal daddy, int rightEdge) {
         this.position = position;
         this.genotype = genotype;
         this.energy = energy;
         this.mommy = mommy;
         this.daddy = daddy;
+        this.rightEdge = rightEdge;
     }
 
     public MapDirection getOrientation() {
@@ -59,11 +61,16 @@ public class Animal implements  WorldElement {
                 this.orientation = orientation.next();
             }
 
-            Vector2d newPosition = validator.canMoveTo(this.position,this.orientation);
-            if (newPosition == this.position) {
+            Vector2d newPosition = this.position.add(this.orientation.toUnitVector());
+
+            if (!validator.canMoveHorizontal(newPosition)) {
                 this.orientation=orientation.next().next().next().next();
             }
-            this.position = newPosition;
+            else if (!validator.canMoveVertical(newPosition)) {
+
+                this.position = new Vector2d(Math.abs(position.getX()-rightEdge), position.getY());
+            }
+            else this.position = newPosition;
         }
         this.energy-=1;
         this.dayOfCycle=(dayOfCycle+1)%genotype.length;
@@ -100,4 +107,5 @@ public class Animal implements  WorldElement {
         }
         return babiesCount;
     }
+
 }

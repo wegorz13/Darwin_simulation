@@ -55,7 +55,7 @@ public class GrassField extends AbstractWorldMap {
                 genotype[j] = rand.nextInt(genotypeLength+1); // Random integer between 0 and 7
             }
 
-            this.place(new Animal(position,genotype,baseEnergy,null,null));
+            this.place(new Animal(position,genotype,baseEnergy,null,null, rightUpCorner.getX()));
         }
 
         //jak dziala ten iterator, jak przejde petla for drugi raz to count sie resetuje?
@@ -120,7 +120,7 @@ public class GrassField extends AbstractWorldMap {
             newGenotype[index] = mutation;
         }
 
-        return new Animal(mommyAnimal.getPosition(),newGenotype,childCost*2,mommyAnimal,daddyAnimal);
+        return new Animal(mommyAnimal.getPosition(),newGenotype,childCost*2,mommyAnimal,daddyAnimal,rightUpCorner.getX());
     }
 
     private void movingStage(){

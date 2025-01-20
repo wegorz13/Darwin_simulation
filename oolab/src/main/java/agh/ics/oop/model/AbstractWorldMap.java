@@ -16,21 +16,13 @@ abstract class AbstractWorldMap implements WorldMap {
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
     @Override
-    public Vector2d canMoveTo(Vector2d position,MapDirection orientation) {
-        Vector2d newPosition = position.add(orientation.toUnitVector());
-
-        //zwraca poprawna pozycje, jak jest taka sama to zwierze musi zrobic 180
-        if (newPosition.getY()> rightUpCorner.getY() || newPosition.getY()< leftDownCorner.getY()){
-            return position;
-        }
-        else if (newPosition.getX() < leftDownCorner.getX()){
-            return new Vector2d(rightUpCorner.getX(), newPosition.getY());
-        }
-        else if (newPosition.getX() > rightUpCorner.getX()){
-            return new Vector2d(leftDownCorner.getX(), newPosition.getY());
-        }
-        return newPosition;
+    public boolean canMoveHorizontal(Vector2d position) {
+       return (position.getX() >= leftDownCorner.getX() && position.getX()<= rightUpCorner.getX());
     }
+
+    @Override
+    public boolean canMoveVertical(Vector2d position) {
+    return (position.getY() >= leftDownCorner.getY() && position.getY()<= rightUpCorner.getY());}
 
     @Override
     public void place(Animal animal)  {
