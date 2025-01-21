@@ -1,26 +1,33 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.util.GrassGenerator;
 import javafx.application.Application;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class World {
     public static void main(String[] args) {
-        Application.launch(SimulationApp.class, args);
-//        List<MoveDirection> directions = OptionsParser.parse(args);
-//        List<Vector2d> positions = List.of(new Vector2d(2,2), new Vector2d(3,4));
-//
-//        List<Simulation> simulations = new LinkedList<>();
-//        for (int i = 0; i < 2000; i++) {
-//            GrassField map = new GrassField(100);
-//            map.addListener(new ConsoleMapDisplay());
-//            simulations.add(new Simulation(positions, directions, map));
-//        }
-//        SimulationEngine engine = new SimulationEngine(simulations);
-//        engine.runAsyncInThreadPool();
-//
+//        Genotype gen = new Genotype(4);
+//        System.out.println(gen.getGenes());
+//        Application.launch(SimulationApp.class, args);
+        GrassField map = new GrassField(2, 5, 5, 5, 4, 5, 0, 1, 10, 5, 8);
+        System.out.println(map);
+        map.dayPasses();
+        System.out.println(map);
 //        System.out.println("System zakończył działanie");
+
+//        GrassGenerator rand = new GrassGenerator(3, 3);
+//        int grassPerDay = 100;
+//        for (int numberOfGrass = 0; numberOfGrass < grassPerDay; numberOfGrass++) {
+//            try {
+//                Grass grass = rand.iterator().next();
+//                System.out.println(grass.getPosition());
+//            } catch (NoSuchElementException e) {
+//                break;
+//            }
+//        }
     }
 }

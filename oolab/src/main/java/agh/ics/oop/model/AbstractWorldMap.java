@@ -11,7 +11,7 @@ abstract class AbstractWorldMap implements WorldMap {
     protected Vector2d leftDownCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
     protected Vector2d rightUpCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
     //sortujemy animale na tej samej pozycji rosnąco po energii
-    protected final Map<Vector2d, LinkedList<Animal>> animals = new HashMap<>();
+    protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
@@ -22,16 +22,16 @@ abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public boolean canMoveVertical(Vector2d position) {
-    return (position.getY() >= leftDownCorner.getY() && position.getY()<= rightUpCorner.getY());}
+        return (position.getY() >= leftDownCorner.getY() && position.getY()<= rightUpCorner.getY());
+    }
 
     @Override
     public void place(Animal animal)  {
         Vector2d position = animal.getPosition();
+        if (!animals.containsKey(position)) animals.put(position, new ArrayList<>());
         this.animals.get(position).add(animal);
         mapChanged("Animal placed at %s".formatted(position));
-        }
-
-
+    }
 
     @Override
     public void move(Animal animal, MoveDirection direction) {
@@ -50,9 +50,12 @@ abstract class AbstractWorldMap implements WorldMap {
         return objectAt(position) != null;
     }
 
+    // To do zmiany ?
     @Override
     public WorldElement objectAt(Vector2d position) {
-        return animals.getOrDefault(position, null);
+        List<Animal> list = animals.get(position);
+        if (list == null) return null;
+        return list.getFirst();
     }
 
     @Override
@@ -63,7 +66,11 @@ abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public List<WorldElement> getElements() {
-        return new ArrayList<>(animals.values());
+        List<WorldElement> elements = new LinkedList<>();
+        for (List<Animal> animalsList : animals.values()) {
+            elements.addAll(animalsList);
+        }
+        return elements;
     }
 
     @Override
@@ -88,8 +95,4 @@ abstract class AbstractWorldMap implements WorldMap {
         for (MapChangeListener listener : listeners)
             listener.mapChanged(this, message);
     }
-
-
-
-
 }

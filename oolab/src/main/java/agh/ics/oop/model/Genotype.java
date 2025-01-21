@@ -12,7 +12,7 @@ public class Genotype {
     public Genotype(int size) {
         List<Integer> genes = new ArrayList<>(size);
         for (int index = 0; index < size; index++) {
-            genes.set(index, rand.nextInt(8));
+            genes.add(rand.nextInt(8));
         }
         this.genes = genes;
     }
@@ -57,5 +57,9 @@ public class Genotype {
 
     public int getGene(int index) {
         return genes.get(index);
+    }
+
+    public List<Integer> getGenes() {
+        return new ArrayList<>(this.genes);
     }
 }

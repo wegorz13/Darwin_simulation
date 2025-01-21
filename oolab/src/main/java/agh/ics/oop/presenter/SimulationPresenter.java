@@ -28,7 +28,7 @@ public class SimulationPresenter implements MapChangeListener {
     private TextField moveList;
     @FXML
     private Label moveDescription;
-    
+
     public void setWorldMap(WorldMap map) {
         this.map = map;
     }
@@ -89,13 +89,15 @@ public class SimulationPresenter implements MapChangeListener {
         try {
             List<MoveDirection> directions = OptionsParser.parse(moveList.getText().split(" "));
             List<Vector2d> positions = List.of(new Vector2d(2,2), new Vector2d(3,4));
-            GrassField map = new GrassField(10);
+            GrassField map = new GrassField(2, 4, 10, 10, 5, 2, 0, 1, 5, 5, 5);
             map.addListener(this);
             Simulation simulation = new Simulation(positions, directions, map);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             new Thread(engine::runAsync).start();
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
+            System.out.println("XD");
+
         }
     }
 
