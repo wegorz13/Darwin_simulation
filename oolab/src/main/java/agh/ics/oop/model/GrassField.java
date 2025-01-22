@@ -10,24 +10,28 @@ import java.util.*;
 
 public class GrassField extends AbstractWorldMap {
     private final Map<Vector2d, Grass> grasses;
+    // do zaimplementowania
+    private final List<WaterReservoir> reservoirs = new ArrayList<>();
     private final GrassGenerator grassGenerator;
     private final int childCost;
-    private final int genotypeLength;
     private final int minMutations;
     private final int maxMutations;
     private final int grassCalory;
     private final int readyToParent;
     private final int grassPerDay;
     private int lordsDay = 0;
+    private final boolean oldNotGold;
 
-    public GrassField(int numberOfAnimals, int grassPerDay, int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent) {
+
+
+    public GrassField(int numberOfAnimals, int grassPerDay, int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent, boolean oldNotGold) {
         this.childCost = childCost;
-        this.genotypeLength = genotypeLength;
         this.minMutations = minMutations;
         this.maxMutations = maxMutations;
         this.grassCalory = grassCalory;
         this.readyToParent = readyToParent;
         this.grassPerDay = grassPerDay;
+        this.oldNotGold = oldNotGold;
 
         this.grasses = new HashMap<Vector2d, Grass>();
         this.grassGenerator = new GrassGenerator(width, height);
@@ -42,7 +46,9 @@ public class GrassField extends AbstractWorldMap {
             Vector2d position = new Vector2d(rand.nextInt(width), rand.nextInt(height));
             Genotype genotype = new Genotype(genotypeLength);
 
-            this.place(new Animal(position, genotype, baseEnergy, width - 1));
+            Animal newAnimal = new Animal(position, genotype, baseEnergy, width - 1,oldNotGold);
+            this.place(newAnimal);
+            this.aliveAnimals.add(newAnimal);
         }
 
         // spawn grass
@@ -70,14 +76,13 @@ public class GrassField extends AbstractWorldMap {
     }
 
     private Animal createAnimal(Animal parent1, Animal parent2) {
-        return new Animal(parent1.getPosition(), new Genotype(parent1, parent2, minMutations, maxMutations),childCost * 2, rightUpCorner.getX());
+//        return new Animal(parent1.getPosition(), new Genotype(parent1, parent2, minMutations, maxMutations),childCost * 2, rightUpCorner.getX(),this.oldNotGold);
+        return new Animal(parent1.getPosition(), new Genotype(4),childCost * 2, rightUpCorner.getX(),this.oldNotGold);
     }
 
-    private void movingStage(){
-        for (List<Animal> animalsAtPosition: animals.values()){
-            for (Animal animal : animalsAtPosition){
-                animal.move(this);
-            }
+    private void movingStage() {
+        for (Animal animal : aliveAnimals) {
+            this.move(animal);
         }
     }
 
@@ -99,18 +104,25 @@ public class GrassField extends AbstractWorldMap {
     }
 
     private void clearingStage() {
-        List <Animal> deadAnimals = new ArrayList<>();
+
+        int recentlyDead = 0;
         for (List<Animal> animalsAtPosition: animals.values()){
             for (Animal animal : animalsAtPosition){
                 if (animal.getEnergy() == 0) {
                     animal.unlive(lordsDay);
+                    recentlyDead++;
                     deadAnimals.add(animal);
                 }
             }
         }
 
-        for (Animal animal : deadAnimals) {
-            animals.get(animal.getPosition()).remove(animal);
+        for (int i=0;i<recentlyDead;i++){
+            Animal animal = deadAnimals.get(deadAnimals.size()-1-i);
+            List<Animal> animalsAtPosition = animals.get(animal.getPosition());
+            animalsAtPosition.remove(animal);
+            if (animalsAtPosition.isEmpty()) {
+                this.animals.remove(animal.getPosition());
+            }
         }
     }
 
@@ -126,6 +138,7 @@ public class GrassField extends AbstractWorldMap {
                     mommyAnimal.giveBirth(childCost,babyAnimal);
                     daddyAnimal.giveBirth(childCost,babyAnimal);
                     animalsAtPosition.add(babyAnimal);
+                    aliveAnimals.add(babyAnimal);
                 }
 
             }

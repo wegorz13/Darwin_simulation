@@ -18,12 +18,15 @@ public class Animal implements  WorldElement {
     private final List<Animal> babies = new ArrayList<Animal>();
     private final Random rand = new Random();
     private final int rightEdge;
+    private final boolean oldNotGold;
 
-    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge) {
+
+    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold) {
         this.position = position;
         this.genotype = genotype;
         this.energy = energy;
         this.rightEdge = rightEdge;
+        this.oldNotGold = oldNotGold;
     }
 
     public MapDirection getOrientation() {
