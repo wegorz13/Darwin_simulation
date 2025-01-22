@@ -13,7 +13,7 @@ public class World {
 //        Genotype gen = new Genotype(4);
 //        System.out.println(gen.getGenes());
 //        Application.launch(SimulationApp.class, args);
-        GrassField map = new GrassField(5, 5, 8, 8, 4, 5, 0, 1, 10, 5, 8,true);
+        GrassField map = new GrassField(5, 3, 5,1, 8, 8, 4, 5, 0, 1, 10, 5, 8,true);
         System.out.println(map);
         for (int i=0;i<20;i++){
             map.dayPasses();

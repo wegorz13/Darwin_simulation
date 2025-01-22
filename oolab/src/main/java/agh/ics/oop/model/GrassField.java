@@ -10,8 +10,8 @@ import java.util.*;
 
 public class GrassField extends AbstractWorldMap {
     private final Map<Vector2d, Grass> grasses;
-    // do zaimplementowania
-    private final List<WaterReservoir> reservoirs = new ArrayList<>();
+    public final List<Animal> aliveAnimals = new ArrayList<Animal>();
+    private final List<Animal> deadAnimals = new ArrayList<Animal>();
     private final GrassGenerator grassGenerator;
     private final int childCost;
     private final int minMutations;
@@ -23,8 +23,7 @@ public class GrassField extends AbstractWorldMap {
     private final boolean oldNotGold;
 
 
-
-    public GrassField(int numberOfAnimals, int grassPerDay, int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent, boolean oldNotGold) {
+    public GrassField(int numberOfAnimals, int startingGrass,int numberOfReservoirs ,int grassPerDay,int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent, boolean oldNotGold) {
         this.childCost = childCost;
         this.minMutations = minMutations;
         this.maxMutations = maxMutations;
@@ -52,13 +51,18 @@ public class GrassField extends AbstractWorldMap {
         }
 
         // spawn grass
-        for (int numberOfGrass = 0; numberOfGrass < grassPerDay; numberOfGrass++) {
+        for (int numberOfGrass = 0; numberOfGrass < startingGrass; numberOfGrass++) {
             try {
                 Grass grass = grassGenerator.iterator().next();
                 this.grasses.put(grass.getPosition(), grass);
             } catch (NoSuchElementException e) {
                 break;
             }
+        }
+
+        //create reservoirs
+        for (int i = 0; i < numberOfReservoirs; i++) {
+            this.reservoirs.add(new WaterReservoir(width,height,numberOfReservoirs));
         }
     }
 
@@ -157,7 +161,14 @@ public class GrassField extends AbstractWorldMap {
         }
     }
 
+    private void waterCycle(){
+        for (WaterReservoir reservoir: this.reservoirs){
+            reservoir.updateSize();
+        }
+    }
+
     public void dayPasses(){
+        this.waterCycle();
         this.clearingStage();
         this.movingStage();
         this.eatingStage();

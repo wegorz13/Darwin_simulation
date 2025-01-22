@@ -12,19 +12,24 @@ abstract class AbstractWorldMap implements WorldMap {
     protected Vector2d rightUpCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
     //sortujemy animale na tej samej pozycji rosnąco po energii
     protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
-    public List<Animal> aliveAnimals = new ArrayList<Animal>();
-    protected List<Animal> deadAnimals = new ArrayList<Animal>();
+    protected final List<WaterReservoir> reservoirs = new ArrayList<>();
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
 
     @Override
-    public boolean canMoveHorizontal(Vector2d position) {
+    public boolean canMoveTo(Vector2d position) {
+        for (WaterReservoir reservoir : reservoirs){
+            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())){
+                return false;
+            }
+        }
+
        return (position.getX() >= leftDownCorner.getX() && position.getX()<= rightUpCorner.getX());
     }
 
     @Override
-    public boolean canMoveVertical(Vector2d position) {
+    public boolean aroundTheWorld(Vector2d position) {
         return (position.getY() >= leftDownCorner.getY() && position.getY()<= rightUpCorner.getY());
     }
 
@@ -44,7 +49,7 @@ abstract class AbstractWorldMap implements WorldMap {
         if (animalsAtFrom != null) {
             animalsAtFrom.remove(animal);
 
-            //nie wiem czemu sie wypierdala jak nie usuwam, moja propozycja to tworzyć nową hashmapę codziennie na podstawie aliveAnimals,
+            //nie wiem czemu sie psuje jak nie usuwam, moja propozycja to tworzyć nową hashmapę codziennie na podstawie aliveAnimals,
             // i tak trzeba przesunąć każde zwierzę, równie dobrze można je wstawić na nowo
             if (animalsAtFrom.isEmpty()) {
                 this.animals.remove(fromPosition);
