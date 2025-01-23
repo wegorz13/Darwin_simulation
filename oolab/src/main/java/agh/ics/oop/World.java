@@ -13,12 +13,16 @@ public class World {
 //        Genotype gen = new Genotype(4);
 //        System.out.println(gen.getGenes());
 //        Application.launch(SimulationApp.class, args);
-        GrassField map = new GrassField(10, 3, 1,2, 8, 8, 4, 5, 0, 1, 4, 500, 800,true);
+        GrassField map = new GrassField(7, 3, 1,5, 10, 10, 4, 4, 0, 1, 4, 5, 6,true);
         System.out.println(map);
         for (int i=0;i<20;i++){
             map.dayPasses();
             System.out.println(map);
             System.out.println(map.aliveAnimals.size());
+            if (map.aliveAnimals.size()==0) {
+                System.out.println("animals survived " + i + " days");
+                break;
+            }
         }
 
 //        System.out.println("System zakończył działanie");

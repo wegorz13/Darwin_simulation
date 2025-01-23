@@ -6,11 +6,9 @@ import agh.ics.oop.model.util.Boundary;
 import java.util.*;
 
 abstract class AbstractWorldMap implements WorldMap {
-    // Probability of collision: https://en.wikipedia.org/wiki/Universally_unique_identifier#Collisions
     protected final UUID id = UUID.randomUUID();
     protected Vector2d leftDownCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
     protected Vector2d rightUpCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
-    //sortujemy animale na tej samej pozycji rosnąco po energii
     protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
     protected final List<WaterReservoir> reservoirs = new ArrayList<>();
     protected final MapVisualizer visualizer = new MapVisualizer(this);

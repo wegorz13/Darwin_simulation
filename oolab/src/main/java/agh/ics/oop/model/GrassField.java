@@ -2,13 +2,12 @@ package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.GrassGenerator;
-import agh.ics.oop.model.util.RandomPositionGenerator;
+import agh.ics.oop.model.util.MapVisualizer;
 
-import javax.lang.model.element.AnnotationMirror;
 import java.util.*;
 
 
-public class GrassField extends AbstractWorldMap {
+public class GrassField implements WorldMap {
     private final Map<Vector2d, Grass> grasses;
     public final List<Animal> aliveAnimals = new ArrayList<Animal>();
     private final List<Animal> deadAnimals = new ArrayList<Animal>();
@@ -21,7 +20,14 @@ public class GrassField extends AbstractWorldMap {
     private final int grassPerDay;
     private int lordsDay = 0;
     private final boolean oldNotGold;
-
+    //atrybuty z abstractworldmap
+    protected final UUID id = UUID.randomUUID();
+    protected Vector2d leftDownCorner;
+    protected Vector2d rightUpCorner;
+    protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
+    protected final List<WaterReservoir> reservoirs = new ArrayList<>();
+    protected final MapVisualizer visualizer = new MapVisualizer(this);
+    protected final List<MapChangeListener> listeners = new ArrayList<>();
 
     public GrassField(int numberOfAnimals, int startingGrass,int numberOfReservoirs ,int grassPerDay,int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent, boolean oldNotGold) {
         this.childCost = childCost;
@@ -37,8 +43,8 @@ public class GrassField extends AbstractWorldMap {
 
         Random rand = new Random();
 
-        super.leftDownCorner = new Vector2d(0, 0);
-        super.rightUpCorner = new Vector2d(width - 1, height - 1);
+        this.leftDownCorner = new Vector2d(0, 0);
+        this.rightUpCorner = new Vector2d(width - 1, height - 1);
 
         // place animals
         for (int i = 0; i < numberOfAnimals; i++) {
@@ -68,13 +74,22 @@ public class GrassField extends AbstractWorldMap {
 
     @Override
     public WorldElement objectAt(Vector2d position) {
-        WorldElement objectAtAnimal = super.objectAt(position);
-        return objectAtAnimal != null ? objectAtAnimal : grasses.getOrDefault(position, null);
+        for (WaterReservoir reservoir : reservoirs) {
+            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())) {
+                return new Water();
+            }
+        }
+        List<Animal> list = animals.get(position);
+        if (list!=null && !list.isEmpty()) return list.getFirst();
+        else return grasses.getOrDefault(position, null);
     }
 
     @Override
     public List<WorldElement> getElements() {
-        List<WorldElement> elements = super.getElements();
+        List<WorldElement> elements = new LinkedList<>();
+        for (List<Animal> animalsList : animals.values()) {
+            elements.addAll(animalsList);
+        }
         elements.addAll(grasses.values());
         return elements;
     }
@@ -100,10 +115,16 @@ public class GrassField extends AbstractWorldMap {
         }
 
         for (Grass grass : eatenGrass) {
-            Animal strongestAnimal = animals.get(grass.getPosition()).getLast();
+            List<Animal> animalsAtPosition = animals.get(grass.getPosition());
+            Animal strongestAnimal = animalsAtPosition.getFirst();
+            for (Animal animal : animalsAtPosition) {
+                strongestAnimal = strongestAnimal.compare(animal);
+            }
+
             strongestAnimal.consume(grassCalory);
             grassGenerator.addEatenGrassBack(grass);
             grasses.remove(grass.getPosition());
+            System.out.println("animal ate");
         }
     }
 
@@ -133,10 +154,10 @@ public class GrassField extends AbstractWorldMap {
                     animal.unlive(lordsDay);
                     recentlyDead++;
                     deadAnimals.add(animal);
+                    System.out.println("animal died of hunger");
                 }
             }
         }
-
 
         for (int i=0;i<recentlyDead;i++){
             Animal animal = deadAnimals.get(deadAnimals.size()-1-i);
@@ -151,23 +172,36 @@ public class GrassField extends AbstractWorldMap {
 
     private void lovingStage(){
         for (List<Animal> animalsAtPosition: animals.values()){
+            Animal daddyAnimal;
+            Animal mommyAnimal;
             int numberOfAnimals = animalsAtPosition.size();
             if (numberOfAnimals >= 2) {
-                Animal mommyAnimal = animalsAtPosition.get(numberOfAnimals-1);
-                Animal daddyAnimal = animalsAtPosition.get(numberOfAnimals-2);
+                daddyAnimal = animalsAtPosition.getFirst();
+                for (Animal animal : animalsAtPosition) { //wybieramy tate jako najsilniejszego zwierzaka
+                    daddyAnimal = animal.compare(daddyAnimal);
+                }
 
+                if (animalsAtPosition.getLast()!=daddyAnimal) {mommyAnimal = animalsAtPosition.getLast();}
+                else {mommyAnimal = animalsAtPosition.getFirst();} //ustawiamy mamę na dowolnego innego od juz wybranego
+
+                for (Animal animal : animalsAtPosition) {
+                    if (animal!=daddyAnimal){ //wybieramy mamę
+                        mommyAnimal=mommyAnimal.compare(animal);
+                    }
+                }
                 if (mommyAnimal.getEnergy() >= readyToParent && daddyAnimal.getEnergy() >= readyToParent){
                     Animal babyAnimal = createAnimal(mommyAnimal,daddyAnimal);
                     mommyAnimal.giveBirth(childCost,babyAnimal);
                     daddyAnimal.giveBirth(childCost,babyAnimal);
                     animalsAtPosition.add(babyAnimal);
                     aliveAnimals.add(babyAnimal);
+                    System.out.println("animal was born");
                 }
             }
         }
     }
 
-    private void pollutingStage(){
+    private void pollinationStage(){
         for (int numberOfGrass = 0; numberOfGrass < grassPerDay; numberOfGrass++) {
             try {
                 Grass grass = grassGenerator.iterator().next();
@@ -190,7 +224,87 @@ public class GrassField extends AbstractWorldMap {
         this.movingStage();
         this.eatingStage();
         this.lovingStage();
-        this.pollutingStage();
+        this.pollinationStage();
         lordsDay+=1;
+    }
+
+    //metody z abstractworldmap
+    @Override
+    public boolean canMoveTo(Vector2d position) {
+        for (WaterReservoir reservoir : reservoirs){
+            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())){
+                return false;
+            }
+        }
+        return (position.getX() >= leftDownCorner.getX() && position.getX()<= rightUpCorner.getX());
+    }
+
+    @Override
+    public boolean aroundTheWorld(Vector2d position) {
+        return (position.getY() >= leftDownCorner.getY() && position.getY()<= rightUpCorner.getY());
+    }
+
+    @Override
+    public void place(Animal animal)  {
+        Vector2d position = animal.getPosition();
+        if (!animals.containsKey(position)) animals.put(position, new ArrayList<>());
+        this.animals.get(position).add(animal);
+        mapChanged("Animal placed at %s".formatted(position));
+    }
+
+    @Override
+    public void move(Animal animal) {
+        Vector2d fromPosition = animal.getPosition();
+
+        ArrayList<Animal> animalsAtFrom = this.animals.get(fromPosition);
+        if (animalsAtFrom != null) {
+            animalsAtFrom.remove(animal);
+
+            //nie wiem czemu sie psuje jak nie usuwam, moja propozycja to tworzyć nową hashmapę codziennie na podstawie aliveAnimals,
+            // i tak trzeba przesunąć każde zwierzę, równie dobrze można je wstawić na nowo
+            if (animalsAtFrom.isEmpty()) {
+                this.animals.remove(fromPosition);
+            }
+        }
+
+        animal.move(this);
+
+        this.place(animal);
+
+        mapChanged("Animal moved from %s to %s".formatted(fromPosition, animal.getPosition()));
+    }
+
+    @Override
+    public boolean isOccupied(Vector2d position) {
+        return objectAt(position) != null;
+    }
+
+    @Override
+    public String toString() {
+        Boundary drawCorners = getCurrentBounds();
+        return visualizer.draw(drawCorners.leftDownCorner(), drawCorners.rightUpCorner());
+    }
+
+    @Override
+    public Boundary getCurrentBounds() {
+        return new Boundary(leftDownCorner, rightUpCorner);
+    }
+
+    @Override
+    public UUID getId() {
+        return this.id;
+    }
+
+    public void addListener(MapChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MapChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    protected void mapChanged(String message) {
+        for (MapChangeListener listener : listeners)
+            listener.mapChanged(this, message);
     }
 }

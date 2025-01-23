@@ -61,7 +61,7 @@ public class Animal implements  WorldElement {
                 this.position = new Vector2d(Math.abs(position.getX() - rightEdge), position.getY());
             }
             else this.position = newPosition;
-            System.out.println(this.position);
+            System.out.println(this.position + " energy " + this.energy);
         }
         this.energy -= 1;
         this.age++;
@@ -73,6 +73,14 @@ public class Animal implements  WorldElement {
 
     public int getEnergy(){
         return this.energy;
+    }
+
+    public int getAge(){
+        return this.age;
+    }
+
+    public int getNumberOfChildren(){
+        return this.babies.size();
     }
 
     public void consume(int calory) {
@@ -95,5 +103,19 @@ public class Animal implements  WorldElement {
             descendantsCount += baby.countDescendants();
         }
         return descendantsCount;
+    }
+
+    public Animal compare(Animal contestant) {
+        if (contestant.getEnergy()>this.energy) return contestant;
+        else if (contestant.getEnergy()==this.energy){
+            if (contestant.getAge()>this.age) return contestant;
+            else if (contestant.getAge()==this.age) {
+                if (contestant.getNumberOfChildren()>this.babies.size()) return contestant;
+                else if (contestant.getNumberOfChildren()==this.babies.size() && Math.random()<=0.5){
+                    return contestant;
+                }
+            }
+        }
+        return this;
     }
 }
