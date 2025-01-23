@@ -54,13 +54,14 @@ public class Animal implements  WorldElement {
             }
 
             Vector2d newPosition = this.position.add(this.orientation.toUnitVector());
-            if (!validator.canMoveHorizontal(newPosition)) {
+            if (!validator.canMoveTo(newPosition)) {
                 this.orientation=orientation.next().next().next().next();
             }
-            else if (!validator.canMoveVertical(newPosition)) {
+            else if (!validator.aroundTheWorld(newPosition)) {
                 this.position = new Vector2d(Math.abs(position.getX() - rightEdge), position.getY());
             }
             else this.position = newPosition;
+            System.out.println(this.position);
         }
         this.energy -= 1;
         this.age++;

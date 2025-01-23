@@ -71,6 +71,11 @@ abstract class AbstractWorldMap implements WorldMap {
     // To do zmiany ?
     @Override
     public WorldElement objectAt(Vector2d position) {
+        for (WaterReservoir reservoir : reservoirs){
+            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())){
+                return new Water();
+            }
+        }
         List<Animal> list = animals.get(position);
         if (list == null || list.isEmpty()) return null;
         return list.getFirst();

@@ -108,11 +108,28 @@ public class GrassField extends AbstractWorldMap {
     }
 
     private void clearingStage() {
-
         int recentlyDead = 0;
-        for (List<Animal> animalsAtPosition: animals.values()){
+
+        for (Map.Entry<Vector2d, ArrayList<Animal>> entry : this.animals.entrySet()) {
+            Vector2d position = entry.getKey();
+            List<Animal> animalsAtPosition = entry.getValue();
+
+            //usuwamy zwierzęta które znalazły się w wodzie
+            for (WaterReservoir reservoir : reservoirs) {
+                if (position.follows(reservoir.getLeftDownCorner()) && position.precedes(reservoir.getRightUpCorner())) {
+                    for (Animal animal : animalsAtPosition) {
+                        System.out.println("animal drowned");
+                        if (animal.getEnergy()>0){
+                            animal.unlive(lordsDay);
+                            recentlyDead++;
+                            deadAnimals.add(animal);
+                        }
+                    }
+                }
+            }
+            //usuwamy zwierzęta bez energii
             for (Animal animal : animalsAtPosition){
-                if (animal.getEnergy() == 0) {
+                if (animal.getEnergy() <= 0) {
                     animal.unlive(lordsDay);
                     recentlyDead++;
                     deadAnimals.add(animal);
@@ -120,10 +137,12 @@ public class GrassField extends AbstractWorldMap {
             }
         }
 
+
         for (int i=0;i<recentlyDead;i++){
             Animal animal = deadAnimals.get(deadAnimals.size()-1-i);
             List<Animal> animalsAtPosition = animals.get(animal.getPosition());
             animalsAtPosition.remove(animal);
+            aliveAnimals.remove(animal);
             if (animalsAtPosition.isEmpty()) {
                 this.animals.remove(animal.getPosition());
             }
@@ -144,9 +163,7 @@ public class GrassField extends AbstractWorldMap {
                     animalsAtPosition.add(babyAnimal);
                     aliveAnimals.add(babyAnimal);
                 }
-
             }
-
         }
     }
 
