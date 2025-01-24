@@ -22,21 +22,21 @@ public class Genotype {
         if (parent1.getEnergy() < parent2.getEnergy()) {
             Animal swapReference = parent1;
             parent1 = parent2;
-            parent1 = swapReference;
+            parent2 = swapReference;
         }
 
         List<Integer> genes = new ArrayList<>(parent1.getGenotype().getSize());
-        int numberOfElementsFromParent1 = (int) (parent1.getGenotype().getSize() * Math.ceil((double) parent1.getEnergy() / (parent1.getEnergy() + parent2.getEnergy())));
+        int numberOfElementsFromParent1 = (int) Math.ceil(parent1.getGenotype().getSize() * ((double) parent1.getEnergy() / (parent1.getEnergy() + parent2.getEnergy())));
         int numberOfElementsFromParent2 = parent2.getGenotype().getSize() - numberOfElementsFromParent1;
         if (rand.nextInt(2) == 0) {
             // left side
             for (int index = 0; index < parent1.getGenotype().getSize(); index++) {
-                genes.set(index, index < numberOfElementsFromParent1 ? parent1.getGenotype().getGene(index) : parent2.getGenotype().getGene((index)));
+                genes.add(index < numberOfElementsFromParent1 ? parent1.getGenotype().getGene(index) : parent2.getGenotype().getGene((index)));
             }
         } else {
             // right side
             for (int index = 0; index < parent1.getGenotype().getSize(); index++) {
-                genes.set(index, index < numberOfElementsFromParent2 ? parent2.getGenotype().getGene(index) : parent1.getGenotype().getGene((index)));
+                genes.add(index < numberOfElementsFromParent2 ? parent2.getGenotype().getGene(index) : parent1.getGenotype().getGene((index)));
             }
         }
 
