@@ -1,8 +1,7 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.GrassGenerator;
-import agh.ics.oop.model.util.MapVisualizer;
+import agh.ics.oop.model.util.*;
+import org.w3c.dom.ls.LSOutput;
 
 import java.util.*;
 
@@ -11,15 +10,9 @@ public class GrassField implements WorldMap {
     private final Map<Vector2d, Grass> grasses;
     public final List<Animal> aliveAnimals = new ArrayList<Animal>();
     private final List<Animal> deadAnimals = new ArrayList<Animal>();
+    private final SimulationConfig config;
     private final GrassGenerator grassGenerator;
-    private final int childCost;
-    private final int minMutations;
-    private final int maxMutations;
-    private final int grassCalory;
-    private final int readyToParent;
-    private final int grassPerDay;
     private int lordsDay = 0;
-    private final boolean oldNotGold;
     //atrybuty z abstractworldmap
     protected final UUID id = UUID.randomUUID();
     protected Vector2d leftDownCorner;
@@ -29,35 +22,29 @@ public class GrassField implements WorldMap {
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
-    public GrassField(int numberOfAnimals, int startingGrass,int numberOfReservoirs ,int grassPerDay,int width, int height, int genotypeLength, int childCost, int minMutations, int maxMutations, int grassCalory, int baseEnergy, int readyToParent, boolean oldNotGold) {
-        this.childCost = childCost;
-        this.minMutations = minMutations;
-        this.maxMutations = maxMutations;
-        this.grassCalory = grassCalory;
-        this.readyToParent = readyToParent;
-        this.grassPerDay = grassPerDay;
-        this.oldNotGold = oldNotGold;
+    public GrassField( SimulationConfig config) {
+        this.config = config;
 
         this.grasses = new HashMap<Vector2d, Grass>();
-        this.grassGenerator = new GrassGenerator(width, height);
+        this.grassGenerator = new GrassGenerator(config.mapWidth(), config.mapHeight());
 
         Random rand = new Random();
 
         this.leftDownCorner = new Vector2d(0, 0);
-        this.rightUpCorner = new Vector2d(width - 1, height - 1);
+        this.rightUpCorner = new Vector2d(config.mapWidth() - 1, config.mapHeight() - 1);
 
         // place animals
-        for (int i = 0; i < numberOfAnimals; i++) {
-            Vector2d position = new Vector2d(rand.nextInt(width), rand.nextInt(height));
-            Genotype genotype = new Genotype(genotypeLength);
+        for (int i = 0; i < config.basePopulation(); i++) {
+            Vector2d position = new Vector2d(rand.nextInt(config.mapWidth()), rand.nextInt(config.mapHeight()));
+            Genotype genotype = new Genotype(config.genotypeLength());
 
-            Animal newAnimal = new Animal(position, genotype, baseEnergy, width - 1,oldNotGold);
+            Animal newAnimal = new Animal(position, genotype, config.baseEnergy(), config.mapWidth() - 1, config.oldNotGold(), rand.nextInt(config.genotypeLength()));
             this.place(newAnimal);
             this.aliveAnimals.add(newAnimal);
         }
 
         // spawn grass
-        for (int numberOfGrass = 0; numberOfGrass < startingGrass; numberOfGrass++) {
+        for (int numberOfGrass = 0; numberOfGrass < config.baseGrassNumber(); numberOfGrass++) {
             try {
                 Grass grass = grassGenerator.iterator().next();
                 this.grasses.put(grass.getPosition(), grass);
@@ -67,8 +54,8 @@ public class GrassField implements WorldMap {
         }
 
         //create reservoirs
-        for (int i = 0; i < numberOfReservoirs; i++) {
-            this.reservoirs.add(new WaterReservoir(width,height,numberOfReservoirs));
+        for (int i = 0; i < config.numberOfReservoirs(); i++) {
+            this.reservoirs.add(new WaterReservoir(config.mapWidth(), config.mapHeight(), config.numberOfReservoirs()));
         }
     }
 
@@ -95,8 +82,7 @@ public class GrassField implements WorldMap {
     }
 
     private Animal createAnimal(Animal parent1, Animal parent2) {
-//        return new Animal(parent1.getPosition(), new Genotype(parent1, parent2, minMutations, maxMutations),childCost * 2, rightUpCorner.getX(),this.oldNotGold);
-        return new Animal(parent1.getPosition(), new Genotype(4),childCost * 2, rightUpCorner.getX(),this.oldNotGold);
+        return new Animal(parent1.getPosition(), new Genotype(parent1, parent2, config.minMutations(), config.maxMutations()),config.childCost() * 2, rightUpCorner.getX(),config.oldNotGold(),(int)(Math.random()*(parent1.getGenotype().getSize())));
     }
 
     private void movingStage() {
@@ -121,10 +107,9 @@ public class GrassField implements WorldMap {
                 strongestAnimal = strongestAnimal.compare(animal);
             }
 
-            strongestAnimal.consume(grassCalory);
+            strongestAnimal.consume(config.grassCalory());
             grassGenerator.addEatenGrassBack(grass);
             grasses.remove(grass.getPosition());
-            System.out.println("animal ate");
         }
     }
 
@@ -139,7 +124,6 @@ public class GrassField implements WorldMap {
             for (WaterReservoir reservoir : reservoirs) {
                 if (position.follows(reservoir.getLeftDownCorner()) && position.precedes(reservoir.getRightUpCorner())) {
                     for (Animal animal : animalsAtPosition) {
-                        System.out.println("animal drowned");
                         if (animal.getEnergy()>0){
                             animal.unlive(lordsDay);
                             recentlyDead++;
@@ -154,7 +138,6 @@ public class GrassField implements WorldMap {
                     animal.unlive(lordsDay);
                     recentlyDead++;
                     deadAnimals.add(animal);
-                    System.out.println("animal died of hunger");
                 }
             }
         }
@@ -189,20 +172,19 @@ public class GrassField implements WorldMap {
                         mommyAnimal=mommyAnimal.compare(animal);
                     }
                 }
-                if (mommyAnimal.getEnergy() >= readyToParent && daddyAnimal.getEnergy() >= readyToParent){
-                    Animal babyAnimal = createAnimal(mommyAnimal,daddyAnimal);
-                    mommyAnimal.giveBirth(childCost,babyAnimal);
-                    daddyAnimal.giveBirth(childCost,babyAnimal);
+                if (mommyAnimal.getEnergy() >= config.readyToParent() && daddyAnimal.getEnergy() >= config.readyToParent()){
+                    Animal babyAnimal = createAnimal(mommyAnimal, daddyAnimal);
+                    mommyAnimal.giveBirth(config.childCost(), babyAnimal);
+                    daddyAnimal.giveBirth(config.childCost(), babyAnimal);
                     animalsAtPosition.add(babyAnimal);
                     aliveAnimals.add(babyAnimal);
-                    System.out.println("animal was born");
                 }
             }
         }
     }
 
     private void pollinationStage(){
-        for (int numberOfGrass = 0; numberOfGrass < grassPerDay; numberOfGrass++) {
+        for (int numberOfGrass = 0; numberOfGrass < config.grassPerDay(); numberOfGrass++) {
             try {
                 Grass grass = grassGenerator.iterator().next();
                 this.grasses.put(grass.getPosition(), grass);
@@ -306,5 +288,36 @@ public class GrassField implements WorldMap {
     protected void mapChanged(String message) {
         for (MapChangeListener listener : listeners)
             listener.mapChanged(this, message);
+    }
+
+    @Override
+    public Statistics getStatistics(){
+        int animalsNumber = this.aliveAnimals.size();
+        int grassNumber = this.grasses.size();
+        // to z genotypem trzeba zrobic ale teraz mi sie nie chce
+        Genotype mostPopularGenotype = new Genotype(config.genotypeLength());
+        int freePositionsNumber = config.mapWidth()*config.mapHeight()-animals.size()-grasses.size();
+        int sumOfEnergy=0;
+        int sumOfAge=0;
+        int sumOfChildren=0;
+
+        for (Animal animal : aliveAnimals) {
+            sumOfEnergy+=animal.getEnergy();
+            sumOfChildren+=animal.getNumberOfChildren();
+        }
+        for (Animal animal : deadAnimals){
+            sumOfAge+=animal.getAge();
+        }
+
+        double averageEnergy = (double) sumOfEnergy / animalsNumber;
+        double averageLifetime = (double) sumOfAge / animalsNumber;
+        double averageChildren = (double) sumOfChildren / animalsNumber;
+
+        for (WaterReservoir reservoir : reservoirs){
+            int area = (reservoir.getRightUpCorner().getX()-reservoir.getLeftDownCorner().getX())*(reservoir.getRightUpCorner().getY()-reservoir.getLeftDownCorner().getY());
+            freePositionsNumber-=area;
+        }
+
+        return new Statistics(animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype);
     }
 }

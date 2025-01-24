@@ -12,18 +12,18 @@ public class World {
     public static void main(String[] args) {
 //        Genotype gen = new Genotype(4);
 //        System.out.println(gen.getGenes());
-//        Application.launch(SimulationApp.class, args);
-        GrassField map = new GrassField(7, 3, 1,5, 10, 10, 4, 4, 0, 1, 4, 5, 6,true);
-        System.out.println(map);
-        for (int i=0;i<20;i++){
-            map.dayPasses();
-            System.out.println(map);
-            System.out.println(map.aliveAnimals.size());
-            if (map.aliveAnimals.size()==0) {
-                System.out.println("animals survived " + i + " days");
-                break;
-            }
-        }
+        Application.launch(SimulationApp.class, args);
+//        GrassField map = new GrassField(7, 3, 1,5, 10, 10, 4, 4, 0, 1, 4, 5, 6,true);
+//        System.out.println(map);
+//        for (int i=0;i<20;i++){
+//            map.dayPasses();
+//            System.out.println(map);
+//            System.out.println(map.aliveAnimals.size());
+//            if (map.aliveAnimals.size()==0) {
+//                System.out.println("animals survived " + i + " days");
+//                break;
+//            }
+//        }
 
 //        System.out.println("System zakończył działanie");
 

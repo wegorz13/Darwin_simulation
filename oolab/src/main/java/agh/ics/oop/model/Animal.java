@@ -18,15 +18,16 @@ public class Animal implements  WorldElement {
     private final List<Animal> babies = new ArrayList<Animal>();
     private final Random rand = new Random();
     private final int rightEdge;
+    private final int genotypeStartingIndex;
     private final boolean oldNotGold;
 
-
-    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold) {
+    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold,int genotypeStartingIndex) {
         this.position = position;
         this.genotype = genotype;
         this.energy = energy;
         this.rightEdge = rightEdge;
         this.oldNotGold = oldNotGold;
+        this.genotypeStartingIndex = genotypeStartingIndex;
     }
 
     public MapDirection getOrientation() {
@@ -48,8 +49,8 @@ public class Animal implements  WorldElement {
 
     public void move(MoveValidator validator) {
         // possible skip of move due to age, probability stops increasing after 80%
-        if (rand.nextInt(100) >= min(age, 80)) {
-            for (int i = 0; i < this.genotype.getGene(age % genotype.getSize()); i++) {
+        if (!oldNotGold || rand.nextInt(100) >= min(age, 80)) {
+            for (int i = 0; i < this.genotype.getGene((genotypeStartingIndex + age) % genotype.getSize()); i++) {
                 this.orientation = orientation.next();
             }
 
@@ -61,7 +62,6 @@ public class Animal implements  WorldElement {
                 this.position = new Vector2d(Math.abs(position.getX() - rightEdge), position.getY());
             }
             else this.position = newPosition;
-            System.out.println(this.position + " energy " + this.energy);
         }
         this.energy -= 1;
         this.age++;
@@ -106,11 +106,17 @@ public class Animal implements  WorldElement {
     }
 
     public Animal compare(Animal contestant) {
-        if (contestant.getEnergy()>this.energy) return contestant;
+        if (contestant.getEnergy()>this.energy)
+            return contestant;
+
         else if (contestant.getEnergy()==this.energy){
-            if (contestant.getAge()>this.age) return contestant;
+            if (contestant.getAge()>this.age)
+                return contestant;
+
             else if (contestant.getAge()==this.age) {
-                if (contestant.getNumberOfChildren()>this.babies.size()) return contestant;
+                if (contestant.getNumberOfChildren()>this.babies.size())
+                    return contestant;
+
                 else if (contestant.getNumberOfChildren()==this.babies.size() && Math.random()<=0.5){
                     return contestant;
                 }

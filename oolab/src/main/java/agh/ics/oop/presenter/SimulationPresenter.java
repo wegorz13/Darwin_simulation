@@ -1,33 +1,60 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.OptionsParser;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.util.Boundary;
+import agh.ics.oop.model.util.SimulationConfig;
+import agh.ics.oop.model.util.Statistics;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
+import javax.swing.text.html.ImageView;
+import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.round;
 
 public class SimulationPresenter implements MapChangeListener {
     private WorldMap map;
-    private static final int GRIDPANEHEIGHT = 400;
-    private static final int GRIDPANEWIDTH = 400;
+    private SimulationConfig config;
+    private Statistics statistics;
+    private static final int GRIDPANEHEIGHT = 800;
+    private static final int GRIDPANEWIDTH = 800;
+
     @FXML
     private GridPane mapGrid;
     @FXML
-    private TextField moveList;
+    private Label errorMessage,animalsLabel,grassLabel,freePositionLabel,energyLabel,lifetimeLabel,childrenLabel,genotypeLabel;
     @FXML
-    private Label moveDescription;
+    private VBox configBox,statisticsBox;
+    @FXML
+    private Spinner<Integer> mapWidth, mapHeight, baseGrassNumber, grassPerDay, basePopulation, baseEnergy, readyToParent, childCost, minMutations, maxMutations, genotypeLength, numberOfReservoirs, grassCalory;
+    @FXML
+    private CheckBox oldNotGold;
+
+    @FXML
+    public void initialize() {
+        // Configure spinners with default values and ranges
+        mapWidth.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
+        mapHeight.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
+        baseGrassNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 20));
+        grassPerDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 10));
+        basePopulation.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 500, 15));
+        baseEnergy.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 15));
+        readyToParent.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 500, 10));
+        childCost.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 500, 5));
+        minMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10, 0));
+        maxMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10, 3));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 5));
+        numberOfReservoirs.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5, 1));
+        grassCalory.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 10));
+    }
+
 
     public void setWorldMap(WorldMap map) {
         this.map = map;
@@ -75,38 +102,83 @@ public class SimulationPresenter implements MapChangeListener {
         for (int x = map.getCurrentBounds().leftDownCorner().getX(); x <= map.getCurrentBounds().rightUpCorner().getX(); x++) {
             for (int y = map.getCurrentBounds().leftDownCorner().getY(); y <= map.getCurrentBounds().rightUpCorner().getY(); y++) {
                 Vector2d pos = new Vector2d(x, y);
-                Label cell = new Label(" ");
+                Region cell = new Region();
+
                 if (map.isOccupied(pos)) {
-                    cell.setText(map.objectAt(pos).toString());
+                    WorldElement element = map.objectAt(pos);
+                    if (element instanceof Grass) {
+                        cell.setStyle("-fx-background-color: #219b40; " +
+                                "-fx-background-image: url('CosmoOUTLINED.png'); " +
+                                "-fx-background-size: contain; " +      // Set the total size of the spritesheet
+                                "-fx-background-repeat: no-repeat;");
+                    }
+                    else if (element instanceof Animal) {
+                        cell.setStyle("-fx-background-color: #219b40; " +
+                                "-fx-background-image: url('frog32.png'); " +
+                                "-fx-background-size: contain; " +
+                                "-fx-background-repeat: no-repeat;");
+                    }
+                    else  {
+                        cell.setStyle("-fx-background-color: #0000ff;"+
+                                "-fx-background-size: cover; " +
+                                "-fx-background-position: center;");
+                    }
                 }
+                else cell.setStyle("-fx-background-color: #219b40; " +
+                        "-fx-background-size: cover; " +
+                        "-fx-background-position: center;");
+
                 mapGrid.add(cell, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
                 GridPane.setHalignment(mapGrid.getChildren().getLast(), HPos.CENTER);
+                updateStatistics(this.statistics);
             }
         }
      }
 
+     private void setConfig(){
+         this.config = new SimulationConfig(basePopulation.getValue(),baseGrassNumber.getValue(),grassPerDay.getValue(),mapWidth.getValue(),mapHeight.getValue(),genotypeLength.getValue(),childCost.getValue(),minMutations.getValue(),maxMutations.getValue(),grassCalory.getValue(),baseEnergy.getValue(),readyToParent.getValue(),numberOfReservoirs.getValue(),oldNotGold.isSelected());
+     }
+
+     private boolean verifyConfig(SimulationConfig config){
+        return (config.mapHeight()<=config.mapWidth() && config.childCost()<config.readyToParent() && config.minMutations()<=config.maxMutations() && config.maxMutations()<=config.genotypeLength());
+     }
+
     public void onSimulationStartClicked() {
-        try {
-            List<MoveDirection> directions = OptionsParser.parse(moveList.getText().split(" "));
-            List<Vector2d> positions = List.of(new Vector2d(2,2), new Vector2d(3,4));
-            GrassField map = new GrassField(2, 3,1,4, 10, 10, 5, 2, 0, 1, 5, 5, 5,true);
+        this.setConfig();
+
+        if (verifyConfig(this.config)){
+            configBox.setVisible(false);
+            configBox.setManaged(false);
+            statisticsBox.setVisible(true);
+            statisticsBox.setManaged(true);
+
+            List<MoveDirection> directions = new ArrayList<>();
+            List<Vector2d> positions = new ArrayList<>();
+            GrassField map = new GrassField(this.config);
             map.addListener(this);
             Simulation simulation = new Simulation(positions, directions, map);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
-            new Thread(engine::runAsync).start();
-        } catch (IllegalArgumentException e) {
-//            System.out.println(e.getMessage());
-            System.out.println("XD");
-
+            new Thread(engine::runSync).start();
         }
+        else {
+            errorMessage.setText("Invalid input data");
+        }
+    }
+
+    private void updateStatistics(Statistics statistics){
+        animalsLabel.setText(String.valueOf(statistics.animalsNumber()));
+        grassLabel.setText(String.valueOf(statistics.grassNumber()));
+        freePositionLabel.setText(String.valueOf(statistics.freePositionsNumber()));
+        energyLabel.setText(String.format("%.2f",statistics.averageEnergy()));
+        lifetimeLabel.setText(String.format("%.2f",statistics.averageLifetime()));
+        childrenLabel.setText(String.format("%.2f",statistics.averageNumberOfChildren()));
+        genotypeLabel.setText(String.valueOf(statistics.mostPopularGenotype().getGenes()));
     }
 
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         setWorldMap(worldMap);
-        Platform.runLater(() -> {
-            drawMap();
-            moveDescription.setText(message);
-        });
+        this.statistics=worldMap.getStatistics();
+        Platform.runLater(this::drawMap);
     }
 }
