@@ -16,7 +16,7 @@ public class Animal implements  WorldElement {
     private int dayOfDeath;
     private int grassConsumed = 0;
     private final List<Animal> babies = new ArrayList<Animal>();
-    private final Random rand = new Random();
+    private final static Random rand = new Random();
     private final int rightEdge;
     private final int genotypeStartingIndex;
     private final boolean oldNotGold;

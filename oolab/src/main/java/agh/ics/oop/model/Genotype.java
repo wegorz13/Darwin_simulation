@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class Genotype {
     private final List<Integer> genes;
-    private final Random rand = new Random();
+    private final static Random rand = new Random();
 
     public Genotype(int size) {
         List<Integer> genes = new ArrayList<>(size);

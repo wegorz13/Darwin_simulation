@@ -10,6 +10,7 @@ import static java.util.Collections.swap;
 public class GrassGenerator implements Iterable<Grass> {
     private final List<Grass> equator = new ArrayList<Grass>();
     private final List<Grass> steppes = new ArrayList<Grass>();
+    private final static Random rand = new Random();
     private final int height;
 
     public GrassGenerator(int width, int height) {
@@ -36,7 +37,6 @@ public class GrassGenerator implements Iterable<Grass> {
     @Override
     public Iterator<Grass> iterator() {
         return new Iterator<Grass>() {
-            private final Random rand = new Random();
 
             @Override
             public boolean hasNext() {
