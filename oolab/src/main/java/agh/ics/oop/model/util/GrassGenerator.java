@@ -34,6 +34,13 @@ public class GrassGenerator implements Iterable<Grass> {
         }
     }
 
+    private Grass getGrass(List<Grass> grassList, int index) {
+        swap(grassList, index, grassList.size() - 1);
+        Grass grass = grassList.getLast();
+        grassList.removeLast();
+        return grass;
+    }
+
     @Override
     public Iterator<Grass> iterator() {
         return new Iterator<Grass>() {
@@ -49,30 +56,14 @@ public class GrassGenerator implements Iterable<Grass> {
                     throw new NoSuchElementException("No more elements to generate.");
                 }
 
-                Grass grass = null;
+                Grass grass;
                 if (equator.isEmpty()) {
-                    int randomIndex = rand.nextInt(steppes.size());
-                    swap(steppes, randomIndex, steppes.size() - 1);
-                    grass = steppes.getLast();
-                    steppes.removeLast();
+                    grass = getGrass(steppes, rand.nextInt(steppes.size()));
                 } else if (steppes.isEmpty()) {
-                    int randomIndex = rand.nextInt(equator.size());
-                    swap(equator, randomIndex, equator.size() - 1);
-                    grass = equator.getLast();
-                    equator.removeLast();
+                    grass = getGrass(equator, rand.nextInt(equator.size()));
                 } else {
                     int randomChoice = rand.nextInt(100);
-                    if (randomChoice < 80) {
-                        int randomIndex = rand.nextInt(equator.size());
-                        swap(equator, randomIndex, equator.size() - 1);
-                        grass = equator.getLast();
-                        equator.removeLast();
-                    } else {
-                        int randomIndex = rand.nextInt(steppes.size());
-                        swap(steppes, randomIndex, steppes.size() - 1);
-                        grass = steppes.getLast();
-                        steppes.removeLast();
-                    }
+                    grass = randomChoice < 80 ? getGrass(equator, rand.nextInt(equator.size())) : getGrass(steppes, rand.nextInt(steppes.size()));
                 }
                 return grass;
             }
