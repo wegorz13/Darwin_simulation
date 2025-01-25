@@ -1,7 +1,6 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.*;
-import org.w3c.dom.ls.LSOutput;
 
 import java.util.*;
 
@@ -21,6 +20,7 @@ public class GrassField implements WorldMap {
     protected final List<WaterReservoir> reservoirs = new ArrayList<>();
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
+    private Animal subjectAnimal = null;
 
     public GrassField(SimulationConfig config) {
         this.config = config;
@@ -212,6 +212,7 @@ public class GrassField implements WorldMap {
         this.lovingStage();
         this.pollinationStage();
         lordsDay+=1;
+        mapChanged();
     }
 
     //metody z abstractworldmap
@@ -235,7 +236,6 @@ public class GrassField implements WorldMap {
         Vector2d position = animal.getPosition();
         if (!animals.containsKey(position)) animals.put(position, new ArrayList<>());
         this.animals.get(position).add(animal);
-        mapChanged("Animal placed at %s".formatted(position));
     }
 
     @Override
@@ -256,8 +256,6 @@ public class GrassField implements WorldMap {
         animal.move(this);
 
         this.place(animal);
-
-        mapChanged("Animal moved from %s to %s".formatted(fromPosition, animal.getPosition()));
     }
 
     @Override
@@ -289,12 +287,15 @@ public class GrassField implements WorldMap {
         listeners.remove(listener);
     }
 
-    protected void mapChanged(String message) {
+    protected void mapChanged() {
         for (MapChangeListener listener : listeners)
-            listener.mapChanged(this, message);
+            listener.mapChanged(this, "Another day has passed");
     }
 
-    @Override
+    public void setSubjectAnimal(Vector2d position) {
+        this.subjectAnimal = animals.get(position).getFirst();
+    }
+
     public Statistics getStatistics(){
         int animalsNumber = this.aliveAnimals.size();
         int grassNumber = this.grasses.size();
@@ -322,6 +323,20 @@ public class GrassField implements WorldMap {
             freePositionsNumber-=area;
         }
 
-        return new Statistics(animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype);
+        SubjectStatistics subjectStatistics=null;
+
+        if (subjectAnimal !=null){
+            Genotype particularGenotype = subjectAnimal.getGenotype();
+            int activeGene = subjectAnimal.getActiveGene();
+            int particularAge = subjectAnimal.getAge();
+            int particularChildren = subjectAnimal.getNumberOfChildren();
+            int grassConsumed = subjectAnimal.getGrassConsumed();
+            int particularEnergy = subjectAnimal.getEnergy();
+            int descendants = subjectAnimal.countDescendants();
+            int dayOfDeath = subjectAnimal.getDayOfDeath();
+            subjectStatistics = new SubjectStatistics(particularGenotype,activeGene,particularEnergy,grassConsumed,particularChildren,descendants,particularAge,dayOfDeath);
+        }
+
+        return new Statistics(lordsDay,animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype,subjectStatistics);
     }
 }

@@ -16,4 +16,12 @@ public class Grass implements WorldElement {
     public String toString() {
         return "*";
     }
+
+    @Override
+    public String toRegionStyle() {
+        return "-fx-background-color: #219b40; " +
+                "-fx-background-image: url('CosmoOUTLINED.png'); " +
+                "-fx-background-size: contain; " +      // Set the total size of the spritesheet
+                "-fx-background-repeat: no-repeat;";
+    }
 }

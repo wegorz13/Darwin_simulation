@@ -12,4 +12,11 @@ public class Water implements WorldElement {
     public Vector2d getPosition() {
         return null;
     }
+
+    @Override
+    public String toRegionStyle() {
+        return "-fx-background-color: #0000ff;"+
+                "-fx-background-size: cover; " +
+                "-fx-background-position: center;";
+    }
 }

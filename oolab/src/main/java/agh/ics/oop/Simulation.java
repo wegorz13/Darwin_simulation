@@ -45,7 +45,7 @@ public class Simulation implements Runnable {
         while (true) {
             this.map.dayPasses();
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
