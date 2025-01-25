@@ -7,6 +7,7 @@ import java.util.*;
 
 
 public class GrassField implements WorldMap {
+    protected final UUID id = UUID.randomUUID();
     private final Map<Vector2d, Grass> grasses;
     public final List<Animal> aliveAnimals = new ArrayList<Animal>();
     private final List<Animal> deadAnimals = new ArrayList<Animal>();
@@ -14,7 +15,6 @@ public class GrassField implements WorldMap {
     private final GrassGenerator grassGenerator;
     private int lordsDay = 0;
     //atrybuty z abstractworldmap
-    protected final UUID id = UUID.randomUUID();
     protected Vector2d leftDownCorner;
     protected Vector2d rightUpCorner;
     protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
@@ -22,7 +22,7 @@ public class GrassField implements WorldMap {
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
-    public GrassField( SimulationConfig config) {
+    public GrassField(SimulationConfig config) {
         this.config = config;
 
         this.grasses = new HashMap<Vector2d, Grass>();
@@ -104,7 +104,9 @@ public class GrassField implements WorldMap {
             List<Animal> animalsAtPosition = animals.get(grass.getPosition());
             Animal strongestAnimal = animalsAtPosition.getFirst();
             for (Animal animal : animalsAtPosition) {
-                strongestAnimal = strongestAnimal.compare(animal);
+                if (strongestAnimal.compareTo(animal) < 0) {
+                    strongestAnimal = animal;
+                }
             }
 
             strongestAnimal.consume(config.grassCalory());
@@ -153,29 +155,31 @@ public class GrassField implements WorldMap {
         }
     }
 
-    private void lovingStage(){
-        for (List<Animal> animalsAtPosition: animals.values()){
-            Animal daddyAnimal;
-            Animal mommyAnimal;
-            int numberOfAnimals = animalsAtPosition.size();
-            if (numberOfAnimals >= 2) {
-                daddyAnimal = animalsAtPosition.getFirst();
-                for (Animal animal : animalsAtPosition) { //wybieramy tate jako najsilniejszego zwierzaka
-                    daddyAnimal = animal.compare(daddyAnimal);
+    private void lovingStage() {
+        for (List<Animal> animalsAtPosition : animals.values()) {
+            if (animalsAtPosition.size() >= 2) {
+                Animal bestAnimal1 = animalsAtPosition.getFirst();
+                Animal bestAnimal2 = animalsAtPosition.get(1);
+                if (bestAnimal1.compareTo(bestAnimal2) < 0) {
+                    Animal swapReference = bestAnimal1;
+                    bestAnimal1 = bestAnimal2;
+                    bestAnimal2 = swapReference;
                 }
 
-                if (animalsAtPosition.getLast()!=daddyAnimal) {mommyAnimal = animalsAtPosition.getLast();}
-                else {mommyAnimal = animalsAtPosition.getFirst();} //ustawiamy mamę na dowolnego innego od juz wybranego
-
-                for (Animal animal : animalsAtPosition) {
-                    if (animal!=daddyAnimal){ //wybieramy mamę
-                        mommyAnimal=mommyAnimal.compare(animal);
+                for (int index = 2; index < animalsAtPosition.size(); index++) {
+                    Animal animal = animalsAtPosition.get(index);
+                    if (bestAnimal1.compareTo(animal) < 0) {
+                        bestAnimal2 = bestAnimal1;
+                        bestAnimal1 = animal;
+                    } else if (bestAnimal2.compareTo(animal) < 0) {
+                        bestAnimal2 = animal;
                     }
                 }
-                if (mommyAnimal.getEnergy() >= config.readyToParent() && daddyAnimal.getEnergy() >= config.readyToParent()){
-                    Animal babyAnimal = createAnimal(mommyAnimal, daddyAnimal);
-                    mommyAnimal.giveBirth(config.childCost(), babyAnimal);
-                    daddyAnimal.giveBirth(config.childCost(), babyAnimal);
+
+                if (bestAnimal2.getEnergy() >= config.readyToParent()){
+                    Animal babyAnimal = createAnimal(bestAnimal1, bestAnimal2);
+                    bestAnimal1.giveBirth(config.childCost(), babyAnimal);
+                    bestAnimal2.giveBirth(config.childCost(), babyAnimal);
                     animalsAtPosition.add(babyAnimal);
                     aliveAnimals.add(babyAnimal);
                 }

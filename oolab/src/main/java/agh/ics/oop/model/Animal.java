@@ -7,7 +7,7 @@ import java.util.Random;
 
 import static java.lang.Math.min;
 
-public class Animal implements  WorldElement {
+public class Animal implements  WorldElement, Comparable<Animal> {
     private MapDirection orientation = MapDirection.NORTH;
     private Vector2d position;
     private final Genotype genotype;
@@ -15,7 +15,7 @@ public class Animal implements  WorldElement {
     private int age = 0;
     private int dayOfDeath;
     private int grassConsumed = 0;
-    private final List<Animal> babies = new ArrayList<Animal>();
+    private final List<Animal> children = new ArrayList<Animal>();
     private final static Random rand = new Random();
     private final int rightEdge;
     private final int genotypeStartingIndex;
@@ -80,7 +80,7 @@ public class Animal implements  WorldElement {
     }
 
     public int getNumberOfChildren(){
-        return this.babies.size();
+        return this.children.size();
     }
 
     public void consume(int calory) {
@@ -90,7 +90,7 @@ public class Animal implements  WorldElement {
 
     public void giveBirth(int childCost, Animal baby) {
         this.energy -= childCost;
-        this.babies.add(baby);
+        this.children.add(baby);
     }
 
     public void unlive(int dayOfSimulation) {
@@ -98,30 +98,51 @@ public class Animal implements  WorldElement {
     }
 
     public int countDescendants() {
-        int descendantsCount = this.babies.size();
-        for (Animal baby : babies) {
-            descendantsCount += baby.countDescendants();
+        int descendantsCount = this.children.size();
+        for (Animal child : children) {
+            descendantsCount += child.countDescendants();
         }
         return descendantsCount;
     }
 
-    public Animal compare(Animal contestant) {
-        if (contestant.getEnergy()>this.energy)
-            return contestant;
+//    public Animal compare(Animal contestant) {
+//        if (contestant.getEnergy()>this.energy)
+//            return contestant;
+//
+//        else if (contestant.getEnergy()==this.energy){
+//            if (contestant.getAge()>this.age)
+//                return contestant;
+//
+//            else if (contestant.getAge()==this.age) {
+//                if (contestant.getNumberOfChildren()>this.babies.size())
+//                    return contestant;
+//
+//                else if (contestant.getNumberOfChildren()==this.babies.size() && Math.random()<=0.5){
+//                    return contestant;
+//                }
+//            }
+//        }
+//        return this;
+//    }
 
-        else if (contestant.getEnergy()==this.energy){
-            if (contestant.getAge()>this.age)
-                return contestant;
-
-            else if (contestant.getAge()==this.age) {
-                if (contestant.getNumberOfChildren()>this.babies.size())
-                    return contestant;
-
-                else if (contestant.getNumberOfChildren()==this.babies.size() && Math.random()<=0.5){
-                    return contestant;
-                }
-            }
+    @Override
+    public int compareTo(Animal other) {
+        // Compare by energy
+        if (this.energy != other.energy) {
+            return Integer.compare(this.energy, other.energy);
         }
-        return this;
+
+        // Compare by age
+        if (this.age != other.age) {
+            return Integer.compare(this.age, other.age);
+        }
+
+        // Compare by number of children
+        if (this.children.size() != other.children.size()) {
+            return Integer.compare(this.children.size(), other.children.size());
+        }
+
+        // Decide by randomness
+        return Math.random() <= 0.5 ? -1 : 1;
     }
 }
