@@ -172,7 +172,7 @@ public class SimulationPresenter implements MapChangeListener {
         energyLabel.setText(String.format("%.2f",statistics.averageEnergy()));
         lifetimeLabel.setText(String.format("%.2f",statistics.averageLifetime()));
         childrenLabel.setText(String.format("%.2f",statistics.averageNumberOfChildren()));
-        genotypeLabel.setText(String.valueOf(statistics.mostPopularGenotype().getGenes()));
+        genotypeLabel.setText(statistics.mostPopularGenotype().toString());
     }
 
     @Override

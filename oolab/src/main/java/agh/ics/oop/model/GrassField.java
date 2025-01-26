@@ -1,7 +1,6 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.*;
-import org.w3c.dom.ls.LSOutput;
 
 import java.util.*;
 
@@ -22,6 +21,9 @@ public class GrassField implements WorldMap {
     protected final MapVisualizer visualizer = new MapVisualizer(this);
     protected final List<MapChangeListener> listeners = new ArrayList<>();
 
+    private final Map<Genotype, Integer> genotypePopularity = new HashMap<>();
+    private Genotype mostPopularGenotype;
+
     public GrassField(SimulationConfig config) {
         this.config = config;
 
@@ -41,6 +43,10 @@ public class GrassField implements WorldMap {
             Animal newAnimal = new Animal(position, genotype, config.baseEnergy(), config.mapWidth() - 1, config.oldNotGold(), rand.nextInt(config.genotypeLength()));
             this.place(newAnimal);
             this.aliveAnimals.add(newAnimal);
+            genotypePopularity.put(genotype, genotypePopularity.getOrDefault(genotype, 0) + 1);
+            if (mostPopularGenotype == null || genotypePopularity.get(genotype) > genotypePopularity.get(mostPopularGenotype)) {
+                mostPopularGenotype = genotype;
+            }
         }
 
         // spawn grass
@@ -82,7 +88,12 @@ public class GrassField implements WorldMap {
     }
 
     private Animal createAnimal(Animal parent1, Animal parent2) {
-        return new Animal(parent1.getPosition(), new Genotype(parent1, parent2, config.minMutations(), config.maxMutations()),config.childCost() * 2, rightUpCorner.getX(),config.oldNotGold(),(int)(Math.random()*(parent1.getGenotype().getSize())));
+        Genotype genotype = new Genotype(parent1, parent2, config.minMutations(),config.maxMutations());
+        genotypePopularity.put(genotype, genotypePopularity.getOrDefault(genotype, 0) + 1);
+        if (mostPopularGenotype == null || genotypePopularity.get(genotype) > genotypePopularity.get(mostPopularGenotype)) {
+            mostPopularGenotype = genotype;
+        }
+        return new Animal(parent1.getPosition(), genotype,config.childCost() * 2, rightUpCorner.getX(),config.oldNotGold(),(int)(Math.random()*(parent1.getGenotype().getSize())));
     }
 
     private void movingStage() {
@@ -202,6 +213,7 @@ public class GrassField implements WorldMap {
         for (WaterReservoir reservoir: this.reservoirs){
             reservoir.updateSize();
         }
+        System.out.println(config.grassPerDay());
     }
 
     public void dayPasses(){
@@ -298,9 +310,7 @@ public class GrassField implements WorldMap {
     public Statistics getStatistics(){
         int animalsNumber = this.aliveAnimals.size();
         int grassNumber = this.grasses.size();
-        // to z genotypem trzeba zrobic ale teraz mi sie nie chce
-        Genotype mostPopularGenotype = new Genotype(config.genotypeLength());
-        int freePositionsNumber = config.mapWidth()*config.mapHeight()-animals.size()-grasses.size();
+        int freePositionsNumber = config.mapWidth()*config.mapHeight();
         int sumOfEnergy=0;
         int sumOfAge=0;
         int sumOfChildren=0;
@@ -317,9 +327,13 @@ public class GrassField implements WorldMap {
         double averageLifetime = (double) sumOfAge / animalsNumber;
         double averageChildren = (double) sumOfChildren / animalsNumber;
 
-        for (WaterReservoir reservoir : reservoirs){
-            int area = (reservoir.getRightUpCorner().getX()-reservoir.getLeftDownCorner().getX())*(reservoir.getRightUpCorner().getY()-reservoir.getLeftDownCorner().getY());
-            freePositionsNumber-=area;
+        // Zdecydowanie do zmiany
+        for (int y = 0; y < config.mapHeight(); y++) {
+            for (int x = 0; x < config.mapWidth(); x++) {
+                if (isOccupied(new Vector2d(x, y))) {
+                    freePositionsNumber--;
+                }
+            }
         }
 
         return new Statistics(animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype);

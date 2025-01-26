@@ -3,7 +3,9 @@ package agh.ics.oop.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Genotype {
     private final List<Integer> genes;
@@ -61,5 +63,22 @@ public class Genotype {
 
     public List<Integer> getGenes() {
         return new ArrayList<>(this.genes);
+    }
+
+    @Override
+    public String toString() {
+        return genes.stream().map(String::valueOf).collect(Collectors.joining());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Genotype genotype = (Genotype) o;
+        return Objects.equals(genes, genotype.genes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(genes);
     }
 }
