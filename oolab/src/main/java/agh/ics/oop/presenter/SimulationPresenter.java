@@ -86,9 +86,12 @@ public class SimulationPresenter implements MapChangeListener {
                         "-fx-background-size: cover; " +
                         "-fx-background-position: center;");
 
+                cell.setOnMouseClicked(event -> {this.map.setSubjectAnimal(pos); updateSubjectStatistics();});
+
                 mapGrid.add(cell, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
                 GridPane.setHalignment(mapGrid.getChildren().getLast(), HPos.CENTER);
                 updateStatistics(this.map.getStatistics());
+                updateSubjectStatistics();
             }
         }
     }
@@ -101,14 +104,16 @@ public class SimulationPresenter implements MapChangeListener {
         lifetimeLabel.setText(String.format("%.2f",statistics.averageLifetime()));
         childrenLabel.setText(String.format("%.2f",statistics.averageNumberOfChildren()));
         genotypeLabel.setText(statistics.mostPopularGenotype().toString());
+    }
 
+    private void updateSubjectStatistics() {
         Animal subjectAnimal = map.getSubjectAnimal();
         if (subjectAnimal != null) {
             SubjectStatistics subjectAnimalStats = subjectAnimal.getStatistics();
             partEnergyLabel.setText(String.valueOf(subjectAnimalStats.particularEnergy()));
             grassConsumedLabel.setText(String.valueOf(subjectAnimalStats.grassConsumed()));
             descendantsLabel.setText(String.valueOf(subjectAnimalStats.descendants()));
-            partGenotypeLabel.setText(String.valueOf(subjectAnimalStats.particularGenotype().getGenes()));
+            partGenotypeLabel.setText(subjectAnimalStats.particularGenotype().getGenes().toString());
             activeGeneLabel.setText(String.valueOf(subjectAnimalStats.activeGene()));
             partAgeLabel.setText(String.valueOf(subjectAnimalStats.particularAge()));
             partChildrenLabel.setText(String.valueOf(subjectAnimalStats.particularChildren()));

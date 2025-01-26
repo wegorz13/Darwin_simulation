@@ -77,7 +77,6 @@ public class MenuPresenter {
                 simulationStage.minHeightProperty().bind(viewRoot.minHeightProperty());
                 simulationStage.show();
                 Simulation simulation = new Simulation(config);
-                SimulationEngine engine = new SimulationEngine(List.of(simulation));
                 simulation.getMap().addListener(presenter);
                 presenter.setSimulation(simulation);
                 presenter.setMap(simulation.getMap());
