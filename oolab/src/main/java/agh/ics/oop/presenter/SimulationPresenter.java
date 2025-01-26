@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimulationPresenter implements MapChangeListener {
-    private WorldMap map;
-    private SimulationConfig config;
-    private Statistics statistics;
+    private GrassField map;
     private static final int GRIDPANEHEIGHT = 800;
     private static final int GRIDPANEWIDTH = 800;
 
@@ -33,33 +31,12 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private VBox configBox,statisticsBox;
     @FXML
-    private Spinner<Integer> mapWidth, mapHeight, baseGrassNumber, grassPerDay, basePopulation, baseEnergy, readyToParent, childCost, minMutations, maxMutations, genotypeLength, numberOfReservoirs, grassCalory;
-    @FXML
     private CheckBox oldNotGold;
 
-    @FXML
-    public void initialize() {
-        // Configure spinners with default values and ranges
-        mapWidth.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
-        mapHeight.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
-        baseGrassNumber.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 20));
-        grassPerDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 10));
-        basePopulation.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 500, 15));
-        baseEnergy.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 15));
-        readyToParent.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 500, 10));
-        childCost.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 500, 5));
-        minMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10, 0));
-        maxMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10, 3));
-        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 5));
-        numberOfReservoirs.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 5, 1));
-        grassCalory.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 10));
-    }
-
-
-    public void setWorldMap(WorldMap map) {
+    public void setMap(GrassField map) {
         this.map = map;
     }
-
+    
     private void clearGrid() {
         mapGrid.getChildren().retainAll(mapGrid.getChildren().getFirst()); // hack to retain visible grid lines
         mapGrid.getColumnConstraints().clear();
@@ -130,38 +107,8 @@ public class SimulationPresenter implements MapChangeListener {
 
                 mapGrid.add(cell, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
                 GridPane.setHalignment(mapGrid.getChildren().getLast(), HPos.CENTER);
-                updateStatistics(this.statistics);
+                updateStatistics(this.map.getStatistics());
             }
-        }
-     }
-
-     private void setConfig(){
-         this.config = new SimulationConfig(basePopulation.getValue(),baseGrassNumber.getValue(),grassPerDay.getValue(),mapWidth.getValue(),mapHeight.getValue(),genotypeLength.getValue(),childCost.getValue(),minMutations.getValue(),maxMutations.getValue(),grassCalory.getValue(),baseEnergy.getValue(),readyToParent.getValue(),numberOfReservoirs.getValue(),oldNotGold.isSelected());
-     }
-
-     private boolean verifyConfig(SimulationConfig config){
-        return (config.mapHeight()<=config.mapWidth() && config.childCost()<config.readyToParent() && config.minMutations()<=config.maxMutations() && config.maxMutations()<=config.genotypeLength());
-     }
-
-    public void onSimulationStartClicked() {
-        this.setConfig();
-
-        if (verifyConfig(this.config)){
-            configBox.setVisible(false);
-            configBox.setManaged(false);
-            statisticsBox.setVisible(true);
-            statisticsBox.setManaged(true);
-
-            List<MoveDirection> directions = new ArrayList<>();
-            List<Vector2d> positions = new ArrayList<>();
-            GrassField map = new GrassField(this.config);
-            map.addListener(this);
-            Simulation simulation = new Simulation(positions, directions, map);
-            SimulationEngine engine = new SimulationEngine(List.of(simulation));
-            new Thread(engine::runSync).start();
-        }
-        else {
-            errorMessage.setText("Invalid input data");
         }
     }
 
@@ -177,8 +124,6 @@ public class SimulationPresenter implements MapChangeListener {
 
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
-        setWorldMap(worldMap);
-        this.statistics=worldMap.getStatistics();
         Platform.runLater(this::drawMap);
     }
 }

@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 
 public class World {
     public static void main(String[] args) {
-        Application.launch(SimulationApp.class, args);
+        Application.launch(MenuApp.class, args);
 
 //        Animal animal1 = new Animal(new Vector2d(0, 0), new Genotype(4), 15, 10, false, 0);
 //        Animal animal2 = new Animal(new Vector2d(0, 0), new Genotype(4), 15, 10, false, 0);
