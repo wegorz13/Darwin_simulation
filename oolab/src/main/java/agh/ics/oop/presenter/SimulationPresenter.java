@@ -6,8 +6,10 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.Statistics;
 import agh.ics.oop.model.util.SubjectStatistics;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -16,6 +18,8 @@ public class SimulationPresenter implements MapChangeListener {
     private Simulation simulation;
     private static final int GRIDPANEHEIGHT = 800;
     private static final int GRIDPANEWIDTH = 800;
+    private boolean showPreferredPositions = false;
+    private boolean showGenotypeCarriers = false;
 
     @FXML
     private GridPane mapGrid;
@@ -72,25 +76,57 @@ public class SimulationPresenter implements MapChangeListener {
             mapGrid.add(cell, 0, i+1);
         }
 
+        Statistics currentStatistics = this.map.getStatistics();
+
         // draw map with elements
         for (int x = map.getCurrentBounds().leftDownCorner().getX(); x <= map.getCurrentBounds().rightUpCorner().getX(); x++) {
             for (int y = map.getCurrentBounds().leftDownCorner().getY(); y <= map.getCurrentBounds().rightUpCorner().getY(); y++) {
+                String backgroundColor = (showPreferredPositions && (int)Math.ceil(0.4*simulation.getConfig().mapHeight())<=y && y<=(int)Math.floor(0.6 * simulation.getConfig().mapHeight()))?  "#006400" : "#219b40";
+
                 Vector2d pos = new Vector2d(x, y);
+                StackPane cellPane = new StackPane();
                 Region cell = new Region();
 
                 if (map.isOccupied(pos)) {
                     WorldElement element = map.objectAt(pos);
-                    cell.setStyle(element.toRegionStyle());
+
+                    if (element instanceof Animal animal){
+                        ProgressBar energyBar = new ProgressBar();
+                        energyBar.setProgress((double) animal.getEnergy() / 20); // Assuming 100 is max energy
+                        energyBar.setPrefWidth(cellWidth); // Match cell width
+                        energyBar.setMaxHeight((double) cellHeight / 5); // Thin progress bar
+
+                        if (showGenotypeCarriers && animal.getGenotype().equals(currentStatistics.mostPopularGenotype())){
+                            cell.setStyle(animal.toRegionStyle("#DC143C"));
+                        }
+                        else cell.setStyle(animal.toRegionStyle(backgroundColor));
+
+                        cellPane.getChildren().addAll(cell, energyBar);
+                        StackPane.setAlignment(energyBar, Pos.BOTTOM_CENTER);
+                    }
+                    else if (element instanceof Water){
+                        cell.setStyle(element.toRegionStyle("#0000ff"));
+                        cellPane.getChildren().add(cell);
+                    }
+                    else{
+                        cell.setStyle(element.toRegionStyle(backgroundColor));
+                        cellPane.getChildren().add(cell);
+                    }
                 }
-                else cell.setStyle("-fx-background-color: #219b40; " +
+                else {
+                    cell.setStyle("-fx-background-color: " + backgroundColor + ";"  +
                         "-fx-background-size: cover; " +
                         "-fx-background-position: center;");
+                    cellPane.getChildren().add(cell);}
 
-                cell.setOnMouseClicked(event -> {this.map.setSubjectAnimal(pos); updateSubjectStatistics();});
+                cellPane.setOnMouseClicked(event -> {
+                    this.map.setSubjectAnimal(pos);
+                    updateSubjectStatistics();
+                });
 
-                mapGrid.add(cell, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
+                mapGrid.add(cellPane, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
                 GridPane.setHalignment(mapGrid.getChildren().getLast(), HPos.CENTER);
-                updateStatistics(this.map.getStatistics());
+                updateStatistics(currentStatistics);
                 updateSubjectStatistics();
             }
         }
@@ -134,5 +170,13 @@ public class SimulationPresenter implements MapChangeListener {
 
     public void onClickResume() {
         simulation.onClickResume();
+    }
+
+    public void onClickShowPreferred(){
+        this.showPreferredPositions=!showPreferredPositions;
+    }
+
+    public void onClickShowGenotype() {
+        this.showGenotypeCarriers=!showGenotypeCarriers;
     }
 }

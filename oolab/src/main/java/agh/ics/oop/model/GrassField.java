@@ -76,7 +76,13 @@ public class GrassField implements WorldMap {
             }
         }
         List<Animal> list = animals.get(position);
-        if (list!=null && !list.isEmpty()) return list.getFirst();
+        if (list!=null && !list.isEmpty()) {
+            Animal popularGenotypeCarrier=null;
+            for (Animal animal : list) {
+                if (animal.getGenotype().equals(mostPopularGenotype)) popularGenotypeCarrier = animal;
+            }
+            return popularGenotypeCarrier!=null ? popularGenotypeCarrier : list.getFirst();
+        }
         else return grasses.getOrDefault(position, null);
     }
 
@@ -346,5 +352,9 @@ public class GrassField implements WorldMap {
 
     public Animal getSubjectAnimal() {
         return subjectAnimal;
+    }
+
+    public int getDayOfSimulation(){
+        return this.lordsDay;
     }
 }

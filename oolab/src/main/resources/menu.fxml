@@ -124,6 +124,10 @@
             <HBox.margin>
                 <Insets top="10.0"/>
             </HBox.margin>
+        <CheckBox fx:id="saveStats">Save statistics</CheckBox>
+        <HBox.margin>
+            <Insets top="10.0"/>
+        </HBox.margin>
     </HBox>
     <Label fx:id="errorMessage" text="" textAlignment="CENTER"/>
     <Button text="Start" onAction="#onSimulationStartClicked"/>

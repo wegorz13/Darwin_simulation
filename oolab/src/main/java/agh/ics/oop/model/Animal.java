@@ -43,15 +43,11 @@ public class Animal implements  WorldElement, Comparable<Animal> {
         return this.orientation.toString();
     }
 
-    public String toRegionStyle() {
-        return "-fx-background-color: #219b40; " +
+    public String toRegionStyle(String backgroundColor) {
+        return "-fx-background-color: " + backgroundColor + "; " +
                 "-fx-background-image: url('frog32.png'); " +
                 "-fx-background-size: contain; " +
                 "-fx-background-repeat: no-repeat;";
-    }
-
-    public boolean isAt(Vector2d position) {
-        return this.position.equals(position);
     }
 
     public int getGrassConsumed() {

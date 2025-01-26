@@ -13,5 +13,6 @@ public record SimulationConfig(int basePopulation,
                                int baseEnergy,
                                int readyToParent,
                                int numberOfReservoirs,
-                               boolean oldNotGold) {
+                               boolean oldNotGold,
+                                boolean saveStats) {
 }

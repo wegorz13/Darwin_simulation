@@ -52,6 +52,12 @@
                     <Button text="Resume" onAction="#onClickResume"/>
                     <Button text="Pause" onAction="#onClickPause"/>
                 </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="Show preferred positions" onAction="#onClickShowPreferred"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="Genotype carriers" onAction="#onClickShowGenotype"/>
+                </HBox>
             </VBox>
             <GridPane fx:id = "mapGrid" gridLinesVisible="true" alignment="CENTER"/>
         <VBox fx:id="inspectionBox" spacing="10" alignment="CENTER" style="-fx-font-size: 25px;">
