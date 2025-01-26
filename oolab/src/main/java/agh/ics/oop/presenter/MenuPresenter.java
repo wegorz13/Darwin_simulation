@@ -71,17 +71,17 @@ public class MenuPresenter {
                 loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
                 BorderPane viewRoot = loader.load();
                 SimulationPresenter presenter = loader.getController();
-                GrassField map = new GrassField(config);
-                map.addListener(presenter);
-                presenter.setMap(map);
                 Stage simulationStage = new Stage();
                 simulationStage.setScene(new Scene(viewRoot));
                 simulationStage.minWidthProperty().bind(viewRoot.minWidthProperty());
                 simulationStage.minHeightProperty().bind(viewRoot.minHeightProperty());
                 simulationStage.show();
-                Simulation simulation = new Simulation(map);
+                Simulation simulation = new Simulation(config);
                 SimulationEngine engine = new SimulationEngine(List.of(simulation));
-                new Thread(engine::runSync).start();
+                simulation.getMap().addListener(presenter);
+                presenter.setSimulation(simulation);
+                presenter.setMap(simulation.getMap());
+                simulation.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }

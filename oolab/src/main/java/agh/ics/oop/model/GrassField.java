@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.*;
+import com.sun.webkit.dom.RangeImpl;
 
 import java.util.*;
 
@@ -23,6 +24,8 @@ public class GrassField implements WorldMap {
 
     private final Map<Genotype, Integer> genotypePopularity = new HashMap<>();
     private Genotype mostPopularGenotype;
+
+    private Animal subjectAnimal = null;
 
     public GrassField(SimulationConfig config) {
         this.config = config;
@@ -213,7 +216,6 @@ public class GrassField implements WorldMap {
         for (WaterReservoir reservoir: this.reservoirs){
             reservoir.updateSize();
         }
-        System.out.println(config.grassPerDay());
     }
 
     public void dayPasses(){
@@ -224,6 +226,7 @@ public class GrassField implements WorldMap {
         this.lovingStage();
         this.pollinationStage();
         lordsDay+=1;
+        mapChanged();
     }
 
     //metody z abstractworldmap
@@ -247,7 +250,6 @@ public class GrassField implements WorldMap {
         Vector2d position = animal.getPosition();
         if (!animals.containsKey(position)) animals.put(position, new ArrayList<>());
         this.animals.get(position).add(animal);
-        mapChanged("Animal placed at %s".formatted(position));
     }
 
     @Override
@@ -268,8 +270,6 @@ public class GrassField implements WorldMap {
         animal.move(this);
 
         this.place(animal);
-
-        mapChanged("Animal moved from %s to %s".formatted(fromPosition, animal.getPosition()));
     }
 
     @Override
@@ -301,12 +301,11 @@ public class GrassField implements WorldMap {
         listeners.remove(listener);
     }
 
-    protected void mapChanged(String message) {
+    protected void mapChanged() {
         for (MapChangeListener listener : listeners)
-            listener.mapChanged(this, message);
+            listener.mapChanged(this, "Another day has passed");
     }
 
-    @Override
     public Statistics getStatistics(){
         int animalsNumber = this.aliveAnimals.size();
         int grassNumber = this.grasses.size();
@@ -337,5 +336,15 @@ public class GrassField implements WorldMap {
         }
 
         return new Statistics(animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype);
+    }
+
+    public void setSubjectAnimal(Vector2d position) {
+        List<Animal> cellAnimals = animals.get(position);
+        if (cellAnimals == null || cellAnimals.isEmpty()) return;
+        this.subjectAnimal = animals.get(position).getFirst();
+    }
+
+    public Animal getSubjectAnimal() {
+        return subjectAnimal;
     }
 }

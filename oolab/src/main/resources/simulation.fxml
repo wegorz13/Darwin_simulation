@@ -48,8 +48,47 @@
                     <Label text="Most popular genotype:" />
                     <Label fx:id="genotypeLabel" text="0" />
                 </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="Resume" onAction="#onClickResume"/>
+                    <Button text="Pause" onAction="#onClickPause"/>
+                </HBox>
             </VBox>
             <GridPane fx:id = "mapGrid" gridLinesVisible="true" alignment="CENTER"/>
+        <VBox fx:id="inspectionBox" spacing="10" alignment="CENTER" style="-fx-font-size: 25px;">
+
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Animal age: " />
+                <Label fx:id="partAgeLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Animal energy:" />
+                <Label fx:id="partEnergyLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Grass consumed:" />
+                <Label fx:id="grassConsumedLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Children:" />
+                <Label fx:id="partChildrenLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Descendants:" />
+                <Label fx:id="descendantsLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Genotype:" />
+                <Label fx:id="partGenotypeLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Active part: " />
+                <Label fx:id="activeGeneLabel" text="" />
+            </HBox>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Day of death: " />
+                <Label fx:id="dayOfDeathLabel" text="" />
+            </HBox>
+        </VBox>
         </HBox>
     </center>
 </BorderPane>

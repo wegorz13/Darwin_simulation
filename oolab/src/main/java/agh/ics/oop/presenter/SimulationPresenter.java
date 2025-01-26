@@ -1,40 +1,37 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
-import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.SimulationConfig;
 import agh.ics.oop.model.util.Statistics;
+import agh.ics.oop.model.util.SubjectStatistics;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import javax.swing.text.html.ImageView;
-import java.util.ArrayList;
-import java.util.List;
-
 public class SimulationPresenter implements MapChangeListener {
     private GrassField map;
+    private Simulation simulation;
     private static final int GRIDPANEHEIGHT = 800;
     private static final int GRIDPANEWIDTH = 800;
 
     @FXML
     private GridPane mapGrid;
     @FXML
-    private Label errorMessage,animalsLabel,grassLabel,freePositionLabel,energyLabel,lifetimeLabel,childrenLabel,genotypeLabel;
+    private Label animalsLabel,grassLabel,freePositionLabel,energyLabel,lifetimeLabel,childrenLabel,genotypeLabel;
     @FXML
-    private VBox configBox,statisticsBox;
+    private Label partAgeLabel, partEnergyLabel, grassConsumedLabel, partChildrenLabel, descendantsLabel, partGenotypeLabel, activeGeneLabel, dayOfDeathLabel;
     @FXML
-    private CheckBox oldNotGold;
+    private VBox inspectionBox,statisticsBox;
 
     public void setMap(GrassField map) {
         this.map = map;
+    }
+
+    public void setSimulation(Simulation simulation) {
+        this.simulation = simulation;
     }
     
     private void clearGrid() {
@@ -83,23 +80,7 @@ public class SimulationPresenter implements MapChangeListener {
 
                 if (map.isOccupied(pos)) {
                     WorldElement element = map.objectAt(pos);
-                    if (element instanceof Grass) {
-                        cell.setStyle("-fx-background-color: #219b40; " +
-                                "-fx-background-image: url('CosmoOUTLINED.png'); " +
-                                "-fx-background-size: contain; " +      // Set the total size of the spritesheet
-                                "-fx-background-repeat: no-repeat;");
-                    }
-                    else if (element instanceof Animal) {
-                        cell.setStyle("-fx-background-color: #219b40; " +
-                                "-fx-background-image: url('frog32.png'); " +
-                                "-fx-background-size: contain; " +
-                                "-fx-background-repeat: no-repeat;");
-                    }
-                    else  {
-                        cell.setStyle("-fx-background-color: #0000ff;"+
-                                "-fx-background-size: cover; " +
-                                "-fx-background-position: center;");
-                    }
+                    cell.setStyle(element.toRegionStyle());
                 }
                 else cell.setStyle("-fx-background-color: #219b40; " +
                         "-fx-background-size: cover; " +
@@ -120,10 +101,33 @@ public class SimulationPresenter implements MapChangeListener {
         lifetimeLabel.setText(String.format("%.2f",statistics.averageLifetime()));
         childrenLabel.setText(String.format("%.2f",statistics.averageNumberOfChildren()));
         genotypeLabel.setText(statistics.mostPopularGenotype().toString());
+
+        Animal subjectAnimal = map.getSubjectAnimal();
+        if (subjectAnimal != null) {
+            SubjectStatistics subjectAnimalStats = subjectAnimal.getStatistics();
+            partEnergyLabel.setText(String.valueOf(subjectAnimalStats.particularEnergy()));
+            grassConsumedLabel.setText(String.valueOf(subjectAnimalStats.grassConsumed()));
+            descendantsLabel.setText(String.valueOf(subjectAnimalStats.descendants()));
+            partGenotypeLabel.setText(String.valueOf(subjectAnimalStats.particularGenotype().getGenes()));
+            activeGeneLabel.setText(String.valueOf(subjectAnimalStats.activeGene()));
+            partAgeLabel.setText(String.valueOf(subjectAnimalStats.particularAge()));
+            partChildrenLabel.setText(String.valueOf(subjectAnimalStats.particularChildren()));
+            if (subjectAnimalStats.dayOfDeath() > 0){
+                dayOfDeathLabel.setText(String.valueOf(subjectAnimalStats.dayOfDeath()));
+            }
+        }
     }
 
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         Platform.runLater(this::drawMap);
+    }
+
+    public void onClickPause() {
+        simulation.onClickPause();
+    }
+
+    public void onClickResume() {
+        simulation.onClickResume();
     }
 }

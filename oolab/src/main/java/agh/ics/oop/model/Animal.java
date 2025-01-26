@@ -1,9 +1,9 @@
 package agh.ics.oop.model;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import agh.ics.oop.model.util.SubjectStatistics;
+
+import java.util.*;
 
 import static java.lang.Math.min;
 
@@ -43,8 +43,25 @@ public class Animal implements  WorldElement, Comparable<Animal> {
         return this.orientation.toString();
     }
 
+    public String toRegionStyle() {
+        return "-fx-background-color: #219b40; " +
+                "-fx-background-image: url('frog32.png'); " +
+                "-fx-background-size: contain; " +
+                "-fx-background-repeat: no-repeat;";
+    }
+
     public boolean isAt(Vector2d position) {
         return this.position.equals(position);
+    }
+
+    public int getGrassConsumed() {
+        return this.grassConsumed;
+    }
+    public int getDayOfDeath() {
+        return this.dayOfDeath;
+    }
+    public int getActiveGene() {
+        return (genotypeStartingIndex + age) % genotype.getSize();
     }
 
     public void move(MoveValidator validator) {
@@ -98,32 +115,20 @@ public class Animal implements  WorldElement, Comparable<Animal> {
     }
 
     public int countDescendants() {
-        int descendantsCount = this.children.size();
+        Set<Animal> descendants = new HashSet<>();
         for (Animal child : children) {
-            descendantsCount += child.countDescendants();
+            descendants.add(child);
+            child.addDescendants(descendants);
         }
-        return descendantsCount;
+        return descendants.size();
     }
 
-//    public Animal compare(Animal contestant) {
-//        if (contestant.getEnergy()>this.energy)
-//            return contestant;
-//
-//        else if (contestant.getEnergy()==this.energy){
-//            if (contestant.getAge()>this.age)
-//                return contestant;
-//
-//            else if (contestant.getAge()==this.age) {
-//                if (contestant.getNumberOfChildren()>this.babies.size())
-//                    return contestant;
-//
-//                else if (contestant.getNumberOfChildren()==this.babies.size() && Math.random()<=0.5){
-//                    return contestant;
-//                }
-//            }
-//        }
-//        return this;
-//    }
+    private void addDescendants(Set<Animal> descendants) {
+        for (Animal child : children) {
+            descendants.add(child);
+            child.addDescendants(descendants);
+        }
+    }
 
     @Override
     public int compareTo(Animal other) {
@@ -144,5 +149,17 @@ public class Animal implements  WorldElement, Comparable<Animal> {
 
         // Decide by randomness
         return Math.random() <= 0.5 ? -1 : 1;
+    }
+
+    public SubjectStatistics getStatistics() {
+        Genotype genotype = this.genotype;
+        int activeGene = getActiveGene();
+        int particularAge = getAge();
+        int particularChildren = getNumberOfChildren();
+        int grassConsumed = getGrassConsumed();
+        int particularEnergy = getEnergy();
+        int descendants = countDescendants();
+        int dayOfDeath = getDayOfDeath();
+        return new SubjectStatistics(genotype,activeGene,particularEnergy,grassConsumed,particularChildren,descendants,particularAge,dayOfDeath);
     }
 }
