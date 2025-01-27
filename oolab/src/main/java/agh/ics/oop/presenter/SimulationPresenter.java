@@ -99,7 +99,7 @@ public class SimulationPresenter implements MapChangeListener {
         // draw map with elements
         for (int x = map.getCurrentBounds().leftDownCorner().getX(); x <= map.getCurrentBounds().rightUpCorner().getX(); x++) {
             for (int y = map.getCurrentBounds().leftDownCorner().getY(); y <= map.getCurrentBounds().rightUpCorner().getY(); y++) {
-                String backgroundColor = (showPreferredPositions && (int)Math.ceil(0.4*simulation.getConfig().mapHeight())<=y && y<=(int)Math.floor(0.6 * simulation.getConfig().mapHeight()))?  "#006400" : "#219b40";
+                String backgroundColor = (showPreferredPositions && (int)Math.ceil(0.4*simulation.getConfig().mapHeight())<=y + 1 && y + 1<=(int)Math.floor(0.6 * simulation.getConfig().mapHeight()))?  "#006400" : "#219b40";
 
                 Vector2d pos = new Vector2d(x, y);
                 StackPane cellPane = new StackPane();
