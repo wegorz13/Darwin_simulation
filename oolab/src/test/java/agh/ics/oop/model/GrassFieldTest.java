@@ -30,7 +30,7 @@ public class GrassFieldTest {
                 15,
                 80,
                 20,
-                2,
+                0,
                 false,
                 false
         );
@@ -46,14 +46,11 @@ public class GrassFieldTest {
 
     @Test
     void testAnimalMovement() {
-        Animal animal = grassField.getElements().stream()
-                .filter(element -> element instanceof Animal)
-                .map(element -> (Animal) element)
-                .findFirst()
-                .orElseThrow();
+        Animal animal = new Animal(new Vector2d(config.mapWidth()/2, config.mapHeight()/2), new Genotype(1),80,false,0);
 
         Vector2d originalPosition = animal.getPosition();
 
+        grassField.place(animal);
         grassField.move(animal);
         Vector2d newPosition = animal.getPosition();
 
