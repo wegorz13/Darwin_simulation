@@ -66,8 +66,7 @@ public class MenuPresenter {
     }
 
     private void setConfigToSpinners(Map<String, Integer> config) {
-        if (config==null) return;
-
+        if (config == null) return; // When the ComboBox is empty
         mapWidth.getValueFactory().setValue(config.get("mapWidth"));
         mapHeight.getValueFactory().setValue(config.get("mapHeight"));
         baseGrassNumber.getValueFactory().setValue(config.get("baseGrassNumber"));

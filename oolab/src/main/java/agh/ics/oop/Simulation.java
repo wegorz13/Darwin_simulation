@@ -17,7 +17,7 @@ public class Simulation extends Thread {
     private final GrassField map;
     private boolean running = true;
     private final Object lock = new Object();
-    private final String statsFilePath = "stats" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()) + ".csv";
+    private final String statsFilePath = "statistics/stats" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()) + ".csv";
 
     public Simulation(SimulationConfig config) {
         this.config = config;
@@ -26,8 +26,8 @@ public class Simulation extends Thread {
         if (config.saveStats()){
             try {
                 if (!Files.exists(Paths.get(statsFilePath))) {
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(statsFilePath, true))) {
-                        writer.write("Animals,Grass,Free Positions,Avg Energy,Avg Lifetime,Avg Children,Most Popular Genotype, Day of Simulation");
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(statsFilePath, false))) {
+                        writer.write("Day of Simulation,Animals,Grass,Free Positions,Avg Energy,Avg Lifetime,Avg Children,Most Popular Genotype");
                         writer.newLine();
                     }
                 }
@@ -39,15 +39,15 @@ public class Simulation extends Thread {
 
     public void saveStatistics(Statistics statistics){
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(statsFilePath, true))) {
-            String line = String.format("%d,%d,%d,%.2f,%.2f,%.2f,%s,%d",
+            String line = String.format("%d,%d,%d,%d,%.2f,%.2f,%.2f,%s",
+                    map.getDayOfSimulation(),
                     statistics.animalsNumber(),
                     statistics.grassNumber(),
                     statistics.freePositionsNumber(),
                     statistics.averageEnergy(),
                     statistics.averageLifetime(),
                     statistics.averageNumberOfChildren(),
-                    statistics.mostPopularGenotype(),
-                    map.getDayOfSimulation());
+                    statistics.mostPopularGenotype());
 
 
             writer.write(line);

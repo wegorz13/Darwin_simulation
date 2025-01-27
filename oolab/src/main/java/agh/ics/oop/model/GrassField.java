@@ -45,7 +45,7 @@ public class GrassField implements WorldMap {
             Vector2d position = new Vector2d(rand.nextInt(config.mapWidth()), rand.nextInt(config.mapHeight()));
             Genotype genotype = new Genotype(config.genotypeLength());
 
-            Animal newAnimal = new Animal(position, genotype, config.baseEnergy(), config.mapWidth() - 1, config.oldNotGold(), rand.nextInt(config.genotypeLength()));
+            Animal newAnimal = new Animal(position, genotype, config.baseEnergy(), config.oldNotGold(), rand.nextInt(config.genotypeLength()));
             this.place(newAnimal);
             this.aliveAnimals.add(newAnimal);
             genotypePopularity.put(genotype, genotypePopularity.getOrDefault(genotype, 0) + 1);
@@ -104,7 +104,7 @@ public class GrassField implements WorldMap {
         if (mostPopularGenotype == null || genotypePopularity.get(genotype) > genotypePopularity.get(mostPopularGenotype)) {
             mostPopularGenotype = genotype;
         }
-        return new Animal(parent1.getPosition(), genotype,config.childCost() * 2, rightUpCorner.getX(),config.oldNotGold(),(int)(Math.random()*(parent1.getGenotype().getSize())));
+        return new Animal(parent1.getPosition(), genotype,config.childCost() * 2, config.oldNotGold(), (int)(Math.random()*(parent1.getGenotype().getSize())));
     }
 
     protected void movingStage() {
@@ -266,7 +266,7 @@ public class GrassField implements WorldMap {
             }
         }
 
-        animal.move(this);
+        animal.move(this, rightUpCorner.getX());
         this.place(animal);
     }
 
