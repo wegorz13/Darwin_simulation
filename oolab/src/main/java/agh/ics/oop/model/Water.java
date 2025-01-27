@@ -12,8 +12,8 @@ public class Water implements WorldElement {
     }
 
     @Override
-    public String toRegionStyle() {
-        return "-fx-background-color: #0000ff;"+
+    public String toRegionStyle(String backgroundColor) {
+        return "-fx-background-color: " + backgroundColor +";"+
                 "-fx-background-size: cover; " +
                 "-fx-background-position: center;";
     }

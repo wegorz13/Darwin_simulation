@@ -16,7 +16,8 @@ public record SimulationConfig(int basePopulation,
                                int baseEnergy,
                                int readyToParent,
                                int numberOfReservoirs,
-                               boolean oldNotGold) {
+                               boolean oldNotGold,
+                                boolean saveStats) {
 
     public Map<String, Integer> changeToJsonFormat() {
         Map<String, Integer> map = new HashMap<>();
@@ -34,6 +35,7 @@ public record SimulationConfig(int basePopulation,
         map.put("readyToParent", readyToParent);
         map.put("numberOfReservoirs", numberOfReservoirs);
         map.put("oldNotGold", oldNotGold ? 1 : 0);
+        map.put("saveStats", saveStats ? 1 : 0);
         return map;
     }
 }

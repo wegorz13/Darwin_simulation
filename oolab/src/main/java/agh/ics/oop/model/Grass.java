@@ -2,9 +2,11 @@ package agh.ics.oop.model;
 
 public class Grass implements WorldElement {
     private final Vector2d position;
+    private final String flowerPath;
 
     public Grass(Vector2d position) {
         this.position = position;
+        this.flowerPath = "url('flower" + (int)(Math.random() * 12 + 1) + ".png');";
     }
 
     @Override
@@ -18,9 +20,9 @@ public class Grass implements WorldElement {
     }
 
     @Override
-    public String toRegionStyle() {
-        return "-fx-background-color: #219b40; " +
-                "-fx-background-image: url('CosmoOUTLINED.png'); " +
+    public String toRegionStyle(String backgroundColor) {
+        return "-fx-background-color: " + backgroundColor + ";"+
+                "-fx-background-image: " + flowerPath +
                 "-fx-background-size: contain; " +      // Set the total size of the spritesheet
                 "-fx-background-repeat: no-repeat;";
     }

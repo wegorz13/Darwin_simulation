@@ -4,10 +4,10 @@ import agh.ics.oop.model.Genotype;
 
 public record SubjectStatistics (Genotype particularGenotype,
                                  int activeGene,
-                                 int particularEnergy,
+                                 int subjectEnergy,
                                  int grassConsumed,
-                                 int particularChildren,
+                                 int subjectChildren,
                                  int descendants,
-                                 int particularAge,
+                                 int subjectAge,
                                  int dayOfDeath) {
 }

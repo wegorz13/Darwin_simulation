@@ -76,7 +76,13 @@ public class GrassField implements WorldMap {
             }
         }
         List<Animal> list = animals.get(position);
-        if (list!=null && !list.isEmpty()) return list.getFirst();
+        if (list!=null && !list.isEmpty()) {
+            Animal popularGenotypeCarrier=null;
+            for (Animal animal : list) {
+                if (animal.getGenotype().equals(mostPopularGenotype)) popularGenotypeCarrier = animal;
+            }
+            return popularGenotypeCarrier!=null ? popularGenotypeCarrier : list.getFirst();
+        }
         else return grasses.getOrDefault(position, null);
     }
 
@@ -326,7 +332,6 @@ public class GrassField implements WorldMap {
         double averageLifetime = (double) sumOfAge / animalsNumber;
         double averageChildren = (double) sumOfChildren / animalsNumber;
 
-        // Zdecydowanie do zmiany
         for (int y = 0; y < config.mapHeight(); y++) {
             for (int x = 0; x < config.mapWidth(); x++) {
                 if (isOccupied(new Vector2d(x, y))) {
@@ -346,5 +351,9 @@ public class GrassField implements WorldMap {
 
     public Animal getSubjectAnimal() {
         return subjectAnimal;
+    }
+
+    public int getDayOfSimulation(){
+        return this.lordsDay;
     }
 }

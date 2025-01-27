@@ -20,6 +20,7 @@ public class Animal implements  WorldElement, Comparable<Animal> {
     private final int rightEdge;
     private final int genotypeStartingIndex;
     private final boolean oldNotGold;
+    private final String animalPath;
 
     public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold,int genotypeStartingIndex) {
         this.position = position;
@@ -28,6 +29,7 @@ public class Animal implements  WorldElement, Comparable<Animal> {
         this.rightEdge = rightEdge;
         this.oldNotGold = oldNotGold;
         this.genotypeStartingIndex = genotypeStartingIndex;
+        this.animalPath = "url('animal" + (int)(Math.random() * 4 + 1) + ".png');";;
     }
 
     public MapDirection getOrientation() {
@@ -43,15 +45,11 @@ public class Animal implements  WorldElement, Comparable<Animal> {
         return this.orientation.toString();
     }
 
-    public String toRegionStyle() {
-        return "-fx-background-color: #219b40; " +
-                "-fx-background-image: url('frog32.png'); " +
+    public String toRegionStyle(String backgroundColor) {
+        return "-fx-background-color: " + backgroundColor + "; " +
+                "-fx-background-image: " + animalPath + "; " +
                 "-fx-background-size: contain; " +
                 "-fx-background-repeat: no-repeat;";
-    }
-
-    public boolean isAt(Vector2d position) {
-        return this.position.equals(position);
     }
 
     public int getGrassConsumed() {
