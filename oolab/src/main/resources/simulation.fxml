@@ -84,11 +84,11 @@
 
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Animal age: " />
-                <Label fx:id="partAgeLabel" text="" />
+                <Label fx:id="subjectAgeLabel" text="" />
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Animal energy:" />
-                <Label fx:id="partEnergyLabel" text="" />
+                <Label fx:id="subjectEnergyLabel" text="" />
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Grass consumed:" />
@@ -96,7 +96,7 @@
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Children:" />
-                <Label fx:id="partChildrenLabel" text="" />
+                <Label fx:id="subjectChildrenLabel" text="" />
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Descendants:" />
@@ -104,7 +104,7 @@
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Genotype:" />
-                <Label fx:id="partGenotypeLabel" text="" />
+                <Label fx:id="subjectGenotypeLabel" text="" />
             </HBox>
             <HBox spacing="5" alignment="CENTER_LEFT">
                 <Label text="Active part: " />

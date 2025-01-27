@@ -6,7 +6,6 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.Statistics;
 import agh.ics.oop.model.util.SubjectStatistics;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -24,17 +23,15 @@ public class SimulationPresenter implements MapChangeListener {
     private static final int MAX_CHART_DATA_SIZE=100;
     private boolean showPreferredPositions = false;
     private boolean showGenotypeCarriers = false;
-    private XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> grassSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> grassSeries = new XYChart.Series<>();
 
     @FXML
     private GridPane mapGrid;
     @FXML
     private Label animalsLabel,grassLabel,freePositionLabel,energyLabel,lifetimeLabel,childrenLabel,genotypeLabel;
     @FXML
-    private Label partAgeLabel, partEnergyLabel, grassConsumedLabel, partChildrenLabel, descendantsLabel, partGenotypeLabel, activeGeneLabel, dayOfDeathLabel;
-    @FXML
-    private VBox inspectionBox,statisticsBox;
+    private Label subjectAgeLabel, subjectEnergyLabel, grassConsumedLabel, subjectChildrenLabel, descendantsLabel, subjectGenotypeLabel, activeGeneLabel, dayOfDeathLabel;
     @FXML
     private LineChart<Number, Number> animalPopulationChart;
     @FXML
@@ -64,7 +61,6 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     private void drawMap() {
-        // clear grid
         clearGrid();
 
         // update current bounds
@@ -186,13 +182,13 @@ public class SimulationPresenter implements MapChangeListener {
         Animal subjectAnimal = map.getSubjectAnimal();
         if (subjectAnimal != null) {
             SubjectStatistics subjectAnimalStats = subjectAnimal.getStatistics();
-            partEnergyLabel.setText(String.valueOf(subjectAnimalStats.particularEnergy()));
+            subjectEnergyLabel.setText(String.valueOf(subjectAnimalStats.subjectEnergy()));
             grassConsumedLabel.setText(String.valueOf(subjectAnimalStats.grassConsumed()));
             descendantsLabel.setText(String.valueOf(subjectAnimalStats.descendants()));
-            partGenotypeLabel.setText(subjectAnimalStats.particularGenotype().getGenes().toString());
+            subjectGenotypeLabel.setText(subjectAnimalStats.particularGenotype().toString());
             activeGeneLabel.setText(String.valueOf(subjectAnimalStats.activeGene()));
-            partAgeLabel.setText(String.valueOf(subjectAnimalStats.particularAge()));
-            partChildrenLabel.setText(String.valueOf(subjectAnimalStats.particularChildren()));
+            subjectAgeLabel.setText(String.valueOf(subjectAnimalStats.subjectAge()));
+            subjectChildrenLabel.setText(String.valueOf(subjectAnimalStats.subjectChildren()));
             if (subjectAnimalStats.dayOfDeath() > 0){
                 dayOfDeathLabel.setText(String.valueOf(subjectAnimalStats.dayOfDeath()));
             }
