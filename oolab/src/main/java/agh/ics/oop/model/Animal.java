@@ -17,16 +17,14 @@ public class Animal implements WorldElement, Comparable<Animal> {
     private int grassConsumed = 0;
     private final List<Animal> children = new ArrayList<Animal>();
     private final static Random rand = new Random();
-    private final int rightEdge;
     private final int genotypeStartingIndex;
     private final boolean oldNotGold;
     private final String animalPath;
 
-    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold, int genotypeStartingIndex) {
+    public Animal(Vector2d position, Genotype genotype, int energy, boolean oldNotGold, int genotypeStartingIndex) {
         this.position = position;
         this.genotype = genotype;
         this.energy = energy;
-        this.rightEdge = rightEdge;
         this.oldNotGold = oldNotGold;
         this.genotypeStartingIndex = genotypeStartingIndex;
         this.animalPath = "url('animal" + (int)(Math.random() * 4 + 1) + ".png');";;
@@ -62,7 +60,7 @@ public class Animal implements WorldElement, Comparable<Animal> {
         return (genotypeStartingIndex + age) % genotype.getSize();
     }
 
-    public void move(MoveValidator validator) {
+    public void move(MoveValidator validator, int rightEdge) {
         // possible skip of move due to age, probability stops increasing after 80%
         if (!oldNotGold || rand.nextInt(100) >= min(age, 80)) {
             for (int i = 0; i < this.genotype.getGene((genotypeStartingIndex + age) % genotype.getSize()); i++) {
@@ -98,8 +96,8 @@ public class Animal implements WorldElement, Comparable<Animal> {
         return this.children.size();
     }
 
-    public void consume(int calory) {
-        this.energy += calory;
+    public void consume(int energy) {
+        this.energy += energy;
         this.grassConsumed++;
     }
 
