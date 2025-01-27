@@ -17,6 +17,14 @@
     </padding>
     <HBox alignment="CENTER" spacing="20.0">
         <HBox alignment="CENTER_RIGHT" prefWidth="250.0">
+            <Label>Select configuration: </Label>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" prefWidth="250.0">
+            <ComboBox fx:id="configurations" editable="true"/>
+        </HBox>
+    </HBox>
+    <HBox alignment="CENTER" spacing="20.0">
+        <HBox alignment="CENTER_RIGHT" prefWidth="250.0">
             <Label>Map width</Label>
         </HBox>
         <HBox alignment="CENTER_LEFT" prefWidth="250.0">
@@ -119,12 +127,16 @@
             <Spinner fx:id="numberOfReservoirs" editable="true"/>
         </HBox>
     </HBox>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+    <HBox alignment="CENTER" spacing="20.0">
         <CheckBox fx:id="oldNotGold">Old not gold</CheckBox>
-            <HBox.margin>
-                <Insets top="10.0"/>
-            </HBox.margin>
     </HBox>
+    <HBox alignment="CENTER" spacing="20.0" >
+        <padding>
+            <Insets top="25" left="10" right="10"/>
+        </padding>
+        <Label>Name of configuration</Label> <TextField fx:id="nameOfConfiguration" text=""/>
+    </HBox>
+    <HBox alignment="CENTER"><Button text="Save Configuration" onAction="#onClickSaveConfiguration"/></HBox>
     <Label fx:id="errorMessage" text="" textAlignment="CENTER"/>
     <Button text="Start" onAction="#onSimulationStartClicked"/>
 </VBox>

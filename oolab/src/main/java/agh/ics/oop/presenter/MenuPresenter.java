@@ -1,27 +1,22 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.*;
-import agh.ics.oop.model.*;
-import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.SimulationConfig;
-import agh.ics.oop.model.util.Statistics;
-import javafx.application.Application;
-import javafx.application.Platform;
+import com.google.gson.GsonBuilder;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.HPos;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import javax.swing.text.html.ImageView;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class MenuPresenter {
     private SimulationConfig config;
@@ -35,9 +30,17 @@ public class MenuPresenter {
     private Spinner<Integer> mapWidth, mapHeight, baseGrassNumber, grassPerDay, basePopulation, baseEnergy, readyToParent, childCost, minMutations, maxMutations, genotypeLength, numberOfReservoirs, grassCalory;
     @FXML
     private CheckBox oldNotGold;
+    @FXML
+    private TextField nameOfConfiguration;
+    @FXML
+    private ComboBox<String> configurations;
+
+    private final static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private final static Type TYPE = new TypeToken<Map<String, Map<String, Integer>>>(){}.getType();
 
     @FXML
     public void initialize() {
+        getConfigurationsToComboBox();
         // Configure spinners with default values and ranges
         mapWidth.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
         mapHeight.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 1000, 12));
@@ -54,18 +57,35 @@ public class MenuPresenter {
         grassCalory.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 10));
     }
 
-    private void setConfig(){
+    private void setConfig() {
         this.config = new SimulationConfig(basePopulation.getValue(),baseGrassNumber.getValue(),grassPerDay.getValue(),mapWidth.getValue(),mapHeight.getValue(),genotypeLength.getValue(),childCost.getValue(),minMutations.getValue(),maxMutations.getValue(),grassCalory.getValue(),baseEnergy.getValue(),readyToParent.getValue(),numberOfReservoirs.getValue(),oldNotGold.isSelected());
     }
 
-    private boolean verifyConfig(SimulationConfig config){
+    private boolean verifyConfig(SimulationConfig config) {
         return (config.mapHeight()<=config.mapWidth() && config.childCost()<config.readyToParent() && config.minMutations()<=config.maxMutations() && config.maxMutations()<=config.genotypeLength());
+    }
+
+    private void setConfigToSpinners(Map<String, Integer> config) {
+        mapWidth.getValueFactory().setValue(config.get("mapWidth"));
+        mapHeight.getValueFactory().setValue(config.get("mapHeight"));
+        baseGrassNumber.getValueFactory().setValue(config.get("baseGrassNumber"));
+        grassPerDay.getValueFactory().setValue(config.get("grassPerDay"));
+        basePopulation.getValueFactory().setValue(config.get("basePopulation"));
+        baseEnergy.getValueFactory().setValue(config.get("baseEnergy"));
+        readyToParent.getValueFactory().setValue(config.get("readyToParent"));
+        childCost.getValueFactory().setValue(config.get("childCost"));
+        minMutations.getValueFactory().setValue(config.get("minMutations"));
+        maxMutations.getValueFactory().setValue(config.get("maxMutations"));
+        genotypeLength.getValueFactory().setValue(config.get("genotypeLength"));
+        numberOfReservoirs.getValueFactory().setValue(config.get("numberOfReservoirs"));
+        grassCalory.getValueFactory().setValue(config.get("grassCalory"));
+        oldNotGold.setSelected(config.get("oldNotGold") == 1);
     }
 
     public void onSimulationStartClicked() throws IOException {
         this.setConfig();
-
-        if (verifyConfig(this.config)){
+        errorMessage.setText("");
+        if (verifyConfig(this.config)) {
             try {
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
@@ -88,5 +108,69 @@ public class MenuPresenter {
         else {
             errorMessage.setText("Invalid input data");
         }
+    }
+
+    public void onClickSaveConfiguration() {
+        String nameOfConfig = nameOfConfiguration.getText();
+
+        errorMessage.setText("");
+        if (nameOfConfig.isEmpty()) {
+            errorMessage.setText("Name of configuration can't be empty");
+            return;
+        }
+
+        setConfig();
+        if (verifyConfig(this.config)) {
+            Map<String, Map<String, Integer>> allConfigs;
+            try (FileReader reader = new FileReader("configurations.json")) {
+                allConfigs = GSON.fromJson(reader, TYPE);
+                if (allConfigs == null) allConfigs = new HashMap<>();
+            } catch (FileNotFoundException e) {
+                allConfigs = new HashMap<>();
+            } catch (IOException e) {
+                System.out.println("An I/O error occurred: " + e.getMessage());
+                return;
+            }
+
+            allConfigs.put(nameOfConfig, this.config.changeToJsonFormat());
+
+            try (Writer writer = new FileWriter("configurations.json")) {
+                GSON.toJson(allConfigs, writer);
+            } catch (IOException e) {
+                System.out.println("An I/O error occurred: " + e.getMessage());
+                return;
+            }
+            getConfigurationsToComboBox();
+        } else {
+            errorMessage.setText("Invalid input data");
+        }
+    }
+
+    private void getConfigurationsToComboBox() {
+        Map<String, Map<String, Integer>> allConfigs;
+        try (FileReader reader = new FileReader("configurations.json")) {
+            allConfigs = GSON.fromJson(reader, TYPE);
+            if (allConfigs == null) allConfigs = new HashMap<>();
+        } catch (FileNotFoundException e) {
+            allConfigs = new HashMap<>();
+        } catch (IOException e) {
+            System.out.println("An I/O error occurred: " + e.getMessage());
+            return;
+        }
+
+        configurations.getItems().clear();
+        for (String nameOfConfig : allConfigs.keySet()) {
+            configurations.getItems().add(nameOfConfig);
+        }
+
+        Map<String, Map<String, Integer>> finalAllConfigs = allConfigs;
+        configurations.setOnAction(event -> {
+            String selectedItem = (String) configurations.getValue();
+            System.out.println(selectedItem);
+            if (selectedItem != null) {
+                Map<String, Integer> selectedConfig = finalAllConfigs.get(selectedItem);
+                setConfigToSpinners(selectedConfig);
+            }
+        });
     }
 }
