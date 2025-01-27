@@ -1,125 +1,73 @@
-//package agh.ics.oop.model;
-//
-//import org.junit.jupiter.api.Test;
-//
-//import java.util.Map;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-//class AnimalTest {
-//    @Test
-//    void testToString() {
-//        Animal a1 = new Animal();
-//        Animal a2 = new Animal(new Vector2d(3, 2));
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a2.move(MoveDirection.LEFT, validator);
-//
-//        assertEquals("^", a1.toString());
-//        assertEquals("<", a2.toString());
-//    }
-//
-//    @Test
-//    void testToStringWithDifferentOrientation() {
-//        Animal a1 = new Animal();
-//        Animal a2 = new Animal(new Vector2d(3, 2));
-//        Animal a3 = new Animal(new Vector2d(5, 6));
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.LEFT, validator);
-//        a2.move(MoveDirection.RIGHT, validator);
-//        a3.move(MoveDirection.LEFT, validator);
-//        a3.move(MoveDirection.LEFT, validator);
-//
-//        assertEquals("<", a1.toString());
-//        assertEquals(">", a2.toString());
-//        assertEquals("v", a3.toString());
-//    }
-//
-//    @Test
-//    void isAt() {
-//        Animal a1 = new Animal();
-//        Animal a2 = new Animal(new Vector2d(3, 2));
-//
-//        assertTrue(a1.isAt(new Vector2d(2, 2)));
-//        assertFalse(a2.isAt(new Vector2d(2, 3)));
-//        assertFalse(a2.isAt(new Vector2d(3, 3)));
-//    }
-//
-//    @Test
-//    void moveForwad() {
-//        Animal a1 = new Animal();
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.FORWARD, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(2, 3)));
-//    }
-//
-//    @Test
-//    void moveBackward() {
-//        Animal a1 = new Animal();
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.BACKWARD, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(2, 1)));
-//    }
-//
-//    @Test
-//    void moveLeft() {
-//        Animal a1 = new Animal();
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.LEFT, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(2, 2)));
-//        assertEquals(MapDirection.WEST, a1.getOrientation());
-//    }
-//
-//    @Test
-//    void moveRight() {
-//        Animal a1 = new Animal();
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.RIGHT, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(2, 2)));
-//        assertEquals(MapDirection.EAST, a1.getOrientation());
-//    }
-//
-//    @Test
-//    void moveAllInOne() {
-//        Animal a1 = new Animal();
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.FORWARD, validator);
-//        a1.move(MoveDirection.FORWARD, validator);
-//        a1.move(MoveDirection.RIGHT, validator);
-//        a1.move(MoveDirection.BACKWARD, validator);
-//        a1.move(MoveDirection.LEFT, validator);
-//        a1.move(MoveDirection.FORWARD, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(1, 4)));
-//        assertEquals(MapDirection.NORTH, a1.getOrientation());
-//    }
-//
-//    @Test
-//    void moveOutsideOfMap() {
-//        Animal a1 = new Animal(new Vector2d(0, 0));
-//        Animal a2 = new Animal(new Vector2d(4, 4));
-//        MoveValidator validator = new RectangularMap(5, 5);
-//
-//        a1.move(MoveDirection.BACKWARD, validator);
-//        a1.move(MoveDirection.LEFT, validator);
-//        a1.move(MoveDirection.FORWARD, validator);
-//        a2.move(MoveDirection.FORWARD, validator);
-//        a2.move(MoveDirection.RIGHT, validator);
-//        a2.move(MoveDirection.FORWARD, validator);
-//
-//        assertTrue(a1.isAt(new Vector2d(0, 0)));
-//        assertTrue(a2.isAt(new Vector2d(4, 4)));
-//        assertEquals(MapDirection.WEST, a1.getOrientation());
-//        assertEquals(MapDirection.EAST, a2.getOrientation());
-//    }
-//}
+package agh.ics.oop.model;
+
+import agh.ics.oop.model.records.SimulationConfig;
+import agh.ics.oop.model.records.SubjectStatistics;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+class AnimalTest {
+    @Test
+    public void moveTest() {
+        Animal animal = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+        GrassField map = new GrassField(new SimulationConfig(0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, false));
+
+        animal.move(map, map.getCurrentBounds().rightUpCorner().getX());
+        assertEquals(1, animal.getAge());
+        assertEquals(9, animal.getEnergy());
+        assertEquals(1, animal.getActiveGene());
+        assertEquals(0, animal.getGrassConsumed());
+    }
+
+    @Test
+    public void giveBirthTest() {
+        Animal animal = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+        Animal baby = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+        Animal child = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+
+
+        animal.giveBirth(4, baby);
+        baby.giveBirth(4, child);
+
+        assertEquals(6, animal.getEnergy());
+        assertEquals(1, animal.getNumberOfChildren());
+        assertEquals(2, animal.countDescendants());
+        assertEquals(1, baby.countDescendants());
+        assertEquals(0, child.countDescendants());
+    }
+
+    @Test
+    public void compareTo() {
+        Animal animal1 = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+        Animal animal2 = new Animal(new Vector2d(2, 2), new Genotype(4), 9, false, 0);
+        GrassField map = new GrassField(new SimulationConfig(0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, false));
+
+        assertEquals(1, animal1.compareTo(animal2));
+
+        animal1.move(map, map.getCurrentBounds().rightUpCorner().getX());
+        animal1.move(map, map.getCurrentBounds().rightUpCorner().getX());
+
+        assertEquals(-1, animal1.compareTo(animal2));
+
+        Animal animalA = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+        Animal animalB = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+
+        animalA.giveBirth(0, animal1);
+
+        assertEquals(1, animalA.compareTo(animalB));
+        assertEquals(-1, animalB.compareTo(animalA));
+    }
+
+    @Test
+    public void getStatistics() {
+        Animal animal = new Animal(new Vector2d(2, 2), new Genotype(4), 10, false, 0);
+
+        SubjectStatistics statistics = animal.getStatistics();
+
+        assertEquals(0, statistics.activeGene());
+        assertEquals(0, statistics.subjectAge());
+        assertEquals(0, statistics.subjectChildren());
+        assertEquals(0, statistics.grassConsumed());
+        assertEquals(10, statistics.subjectEnergy());
+        assertEquals(0, statistics.descendants());
+    }
+}
