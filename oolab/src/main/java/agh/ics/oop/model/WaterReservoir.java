@@ -1,11 +1,19 @@
 package agh.ics.oop.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 public class WaterReservoir {
-    //proponuje prostokątne zbiorniki dla poprawy jakości snu
-    private Vector2d rightUpCorner;
-    private Vector2d leftDownCorner;
-    private final Vector2d change = new Vector2d(1,1);
+    private final Map<Vector2d,List<Water>> waters;
+    private final static List<Vector2d> FIRST_STAGE_VECTORS = List.of(new Vector2d(0, 1), new Vector2d(0, -1),new Vector2d(1, 0),new Vector2d(-1, 0));
+    private final static List<Vector2d> SECOND_STAGE_VECTORS = List.of(new Vector2d(1, 1), new Vector2d(1, -1),new Vector2d(-1, 1),new Vector2d(-1, -1),new Vector2d(0, 2), new Vector2d(0, -2),new Vector2d(2, 0),new Vector2d(-2, 0));
+    private final List<Water> firstStageWaters = new ArrayList<>();
+    private final List<Water> secondStageWaters = new ArrayList<>();
+    private int phase = 0;
     private int dayOfCycle=0;
+
     private final Runnable[] tideCycle = new Runnable[]{
             () -> {},
             () -> {},
@@ -16,47 +24,61 @@ public class WaterReservoir {
             this::lowTide,
             this::lowTide};
 
-    public WaterReservoir(int width, int height,int numberOfReservoirs) {
-
-        //poza mapą, trzeba zrobić losowanie rozmiarów
-        this.rightUpCorner = new Vector2d((width / 4), height / 4);
-        this.leftDownCorner = new Vector2d(0, 0);
+    public WaterReservoir(Vector2d centerPosition, Map<Vector2d, List<Water>> waters) {
+        this.waters = waters;
+        for (Vector2d stageVector : WaterReservoir.FIRST_STAGE_VECTORS) {
+            firstStageWaters.add(new Water(centerPosition.add(stageVector)));
+        }
+        for (Vector2d stageVector : WaterReservoir.SECOND_STAGE_VECTORS) {
+            secondStageWaters.add(new Water(centerPosition.add(stageVector)));
+        }
     }
 
     private void highTide(){
-        this.rightUpCorner= this.rightUpCorner.add(change);
-        this.leftDownCorner=this.leftDownCorner.subtract(change);
+        if (phase == 0) {
+            place(firstStageWaters);
+            phase = 1;
+        }
+        else {
+            place(secondStageWaters);
+        }
+    }
+
+    private void place(List<Water> stageWaters) {
+        for (Water water : stageWaters) {
+            if (waters.containsKey(water.getPosition())) {
+                waters.get(water.getPosition()).add(water);
+            }
+            else {
+                List<Water> waterList = new ArrayList<>();
+                waterList.add(water);
+                waters.put(water.getPosition(), waterList);
+            }
+        }
+    }
+
+    private void remove(List<Water> stageWaters){
+        for (Water water : stageWaters) {
+            waters.get(water.getPosition()).remove(water);
+            if (waters.get(water.getPosition()).isEmpty()) {
+                waters.remove(water.getPosition());
+            }
+        }
     }
 
     private void lowTide(){
-        this.rightUpCorner=this.rightUpCorner.subtract(change);
-        this.leftDownCorner=this.leftDownCorner.add(change);
+        if (phase == 0) {
+            remove(firstStageWaters);
+        }
+        else {
+            remove(secondStageWaters);
+            phase = 0;
+        }
     }
 
-//    alternatywna wersja bez tablicy runnable
-//    public void updateSize(){
-//        // czeka 2 razy,rośnie 2 razy, czeka 2 razy, maleje 2 razy,
-//        if (dayOfCycle==2 || dayOfCycle==3){
-//            this.highTide();
-//        }
-//        else if (dayOfCycle==6 || dayOfCycle==7){
-//            this.lowTide();
-//        }
-//        dayOfCycle=(dayOfCycle+1)%8;
-//    }
-
     public void updateSize() {
-        // czeka 2 razy,rośnie 2 razy, czeka 2 razy, maleje 2 razy,
         this.tideCycle[dayOfCycle].run();
         dayOfCycle = (dayOfCycle + 1) % 8;
     }
 
-
-    public Vector2d getRightUpCorner() {
-        return rightUpCorner;
-    }
-
-    public Vector2d getLeftDownCorner() {
-        return leftDownCorner;
-    }
 }

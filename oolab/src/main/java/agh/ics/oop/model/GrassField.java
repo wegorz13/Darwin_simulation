@@ -10,6 +10,9 @@ import java.util.*;
 
 public class GrassField implements WorldMap {
     private final Map<Vector2d, Grass> grasses;
+    private final Map<Vector2d,List<Water>> waters = new HashMap<>();
+    private final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
+    private final List<WaterReservoir> reservoirs = new ArrayList<>();
     private final List<Animal> aliveAnimals = new ArrayList<Animal>();
     private final List<Animal> deadAnimals = new ArrayList<Animal>();
     private final SimulationConfig config;
@@ -18,8 +21,7 @@ public class GrassField implements WorldMap {
 
     private final Vector2d leftDownCorner;
     private final Vector2d rightUpCorner;
-    private final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
-    private final List<WaterReservoir> reservoirs = new ArrayList<>();
+
     private final List<MapChangeListener> listeners = new ArrayList<>();
 
     private final Map<Genotype, Integer> genotypePopularity = new HashMap<>();
@@ -63,18 +65,18 @@ public class GrassField implements WorldMap {
         }
 
         //create reservoirs
-        for (int i = 0; i < config.numberOfReservoirs(); i++) {
-            this.reservoirs.add(new WaterReservoir(config.mapWidth(), config.mapHeight(), config.numberOfReservoirs()));
+        RandomPositionGenerator waterGenerator = new RandomPositionGenerator(config.mapWidth(),config.mapHeight(), config.numberOfReservoirs());
+        for (Vector2d position : waterGenerator) {
+            this.reservoirs.add(new WaterReservoir(position,this.waters));
+            waters.put(position,new ArrayList<Water>());
+            waters.get(position).add(new Water(position));
         }
     }
 
     @Override
     public WorldElement objectAt(Vector2d position) {
-        for (WaterReservoir reservoir : reservoirs) {
-            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())) {
-                return new Water();
-            }
-        }
+        if (waters.containsKey(position)) return waters.get(position).getFirst();
+
         List<Animal> list = animals.get(position);
         if (list!=null && !list.isEmpty()) {
             Animal popularGenotypeCarrier=null;
@@ -143,17 +145,16 @@ public class GrassField implements WorldMap {
             List<Animal> animalsAtPosition = entry.getValue();
 
             // usuwamy zwierzęta które znalazły się w wodzie
-            for (WaterReservoir reservoir : reservoirs) {
-                if (position.follows(reservoir.getLeftDownCorner()) && position.precedes(reservoir.getRightUpCorner())) {
-                    for (Animal animal : animalsAtPosition) {
-                        if (animal.getEnergy()>0){
-                            animal.unlive(lordsDay);
-                            recentlyDead++;
-                            deadAnimals.add(animal);
-                        }
+            if (waters.containsKey(position)) {
+                for (Animal animal : animalsAtPosition) {
+                    if (animal.getEnergy()>0){
+                        animal.unlive(lordsDay);
+                        recentlyDead++;
+                        deadAnimals.add(animal);
                     }
                 }
             }
+
             // usuwamy zwierzęta bez energii
             for (Animal animal : animalsAtPosition){
                 if (animal.getEnergy() <= 0) {
@@ -237,12 +238,7 @@ public class GrassField implements WorldMap {
 
     @Override
     public boolean canMoveTo(Vector2d position) {
-        for (WaterReservoir reservoir : reservoirs){
-            if (position.follows(reservoir.getLeftDownCorner()) & position.precedes(reservoir.getRightUpCorner())){
-                return false;
-            }
-        }
-        return (position.getX() >= leftDownCorner.getX() && position.getX()<= rightUpCorner.getX());
+        return (position.getX() >= leftDownCorner.getX() && position.getX() <= rightUpCorner.getX() && !waters.containsKey(position));
     }
 
     @Override
@@ -324,7 +320,6 @@ public class GrassField implements WorldMap {
                 }
             }
         }
-
         return new Statistics(animalsNumber,grassNumber,freePositionsNumber,averageEnergy,averageLifetime,averageChildren,mostPopularGenotype);
     }
 
