@@ -1,7 +1,7 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.*;
-import agh.ics.oop.model.util.SimulationConfig;
+import agh.ics.oop.model.records.SimulationConfig;
 import com.google.gson.GsonBuilder;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -78,8 +78,9 @@ public class MenuPresenter {
         maxMutations.getValueFactory().setValue(config.get("maxMutations"));
         genotypeLength.getValueFactory().setValue(config.get("genotypeLength"));
         numberOfReservoirs.getValueFactory().setValue(config.get("numberOfReservoirs"));
-        grassCalory.getValueFactory().setValue(config.get("grassCalory"));
+        grassCalory.getValueFactory().setValue(config.get("grassCalorificValue"));
         oldNotGold.setSelected(config.get("oldNotGold") == 1);
+        saveStats.setSelected(config.get("saveStats") == 1);
     }
 
     public void onSimulationStartClicked() throws IOException {

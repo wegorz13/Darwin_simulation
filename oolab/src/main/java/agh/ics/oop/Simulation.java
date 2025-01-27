@@ -1,9 +1,8 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.util.MapVisualizer;
-import agh.ics.oop.model.util.SimulationConfig;
-import agh.ics.oop.model.util.Statistics;
+import agh.ics.oop.model.records.SimulationConfig;
+import agh.ics.oop.model.records.Statistics;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,10 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Simulation extends Thread {
     private final SimulationConfig config;

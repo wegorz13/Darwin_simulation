@@ -2,9 +2,12 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.Statistics;
-import agh.ics.oop.model.util.SubjectStatistics;
+import agh.ics.oop.model.MapChangeListener;
+import agh.ics.oop.model.WorldElement;
+import agh.ics.oop.model.WorldMap;
+import agh.ics.oop.model.records.Boundary;
+import agh.ics.oop.model.records.Statistics;
+import agh.ics.oop.model.records.SubjectStatistics;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;

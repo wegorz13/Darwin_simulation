@@ -1,13 +1,13 @@
 package agh.ics.oop.model;
 
 
-import agh.ics.oop.model.util.SubjectStatistics;
+import agh.ics.oop.model.records.SubjectStatistics;
 
 import java.util.*;
 
 import static java.lang.Math.min;
 
-public class Animal implements  WorldElement, Comparable<Animal> {
+public class Animal implements WorldElement, Comparable<Animal> {
     private MapDirection orientation = MapDirection.NORTH;
     private Vector2d position;
     private final Genotype genotype;
@@ -22,7 +22,7 @@ public class Animal implements  WorldElement, Comparable<Animal> {
     private final boolean oldNotGold;
     private final String animalPath;
 
-    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold,int genotypeStartingIndex) {
+    public Animal(Vector2d position, Genotype genotype, int energy, int rightEdge, boolean oldNotGold, int genotypeStartingIndex) {
         this.position = position;
         this.genotype = genotype;
         this.energy = energy;

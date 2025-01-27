@@ -1,26 +1,26 @@
 package agh.ics.oop.model;
 
+import agh.ics.oop.model.records.Boundary;
+import agh.ics.oop.model.records.SimulationConfig;
+import agh.ics.oop.model.records.Statistics;
 import agh.ics.oop.model.util.*;
-import com.sun.webkit.dom.RangeImpl;
 
 import java.util.*;
 
 
 public class GrassField implements WorldMap {
-    protected final UUID id = UUID.randomUUID();
     private final Map<Vector2d, Grass> grasses;
-    public final List<Animal> aliveAnimals = new ArrayList<Animal>();
+    private final List<Animal> aliveAnimals = new ArrayList<Animal>();
     private final List<Animal> deadAnimals = new ArrayList<Animal>();
     private final SimulationConfig config;
     private final GrassGenerator grassGenerator;
     private int lordsDay = 0;
-    //atrybuty z abstractworldmap
-    protected Vector2d leftDownCorner;
-    protected Vector2d rightUpCorner;
-    protected final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
-    protected final List<WaterReservoir> reservoirs = new ArrayList<>();
-    protected final MapVisualizer visualizer = new MapVisualizer(this);
-    protected final List<MapChangeListener> listeners = new ArrayList<>();
+
+    private final Vector2d leftDownCorner;
+    private final Vector2d rightUpCorner;
+    private final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
+    private final List<WaterReservoir> reservoirs = new ArrayList<>();
+    private final List<MapChangeListener> listeners = new ArrayList<>();
 
     private final Map<Genotype, Integer> genotypePopularity = new HashMap<>();
     private Genotype mostPopularGenotype;
@@ -129,7 +129,7 @@ public class GrassField implements WorldMap {
                 }
             }
 
-            strongestAnimal.consume(config.grassCalory());
+            strongestAnimal.consume(config.grassCalorificValue());
             grassGenerator.addEatenGrassBack(grass);
             grasses.remove(grass.getPosition());
         }
@@ -142,7 +142,7 @@ public class GrassField implements WorldMap {
             Vector2d position = entry.getKey();
             List<Animal> animalsAtPosition = entry.getValue();
 
-            //usuwamy zwierzęta które znalazły się w wodzie
+            // usuwamy zwierzęta które znalazły się w wodzie
             for (WaterReservoir reservoir : reservoirs) {
                 if (position.follows(reservoir.getLeftDownCorner()) && position.precedes(reservoir.getRightUpCorner())) {
                     for (Animal animal : animalsAtPosition) {
@@ -154,7 +154,7 @@ public class GrassField implements WorldMap {
                     }
                 }
             }
-            //usuwamy zwierzęta bez energii
+            // usuwamy zwierzęta bez energii
             for (Animal animal : animalsAtPosition){
                 if (animal.getEnergy() <= 0) {
                     animal.unlive(lordsDay);
@@ -164,7 +164,7 @@ public class GrassField implements WorldMap {
             }
         }
 
-        for (int i=0;i<recentlyDead;i++){
+        for (int i = 0; i < recentlyDead; i++){
             Animal animal = deadAnimals.get(deadAnimals.size()-1-i);
             List<Animal> animalsAtPosition = animals.get(animal.getPosition());
             animalsAtPosition.remove(animal);
@@ -231,11 +231,10 @@ public class GrassField implements WorldMap {
         this.eatingStage();
         this.lovingStage();
         this.pollinationStage();
-        lordsDay+=1;
+        lordsDay += 1;
         mapChanged();
     }
 
-    //metody z abstractworldmap
     @Override
     public boolean canMoveTo(Vector2d position) {
         for (WaterReservoir reservoir : reservoirs){
@@ -266,15 +265,12 @@ public class GrassField implements WorldMap {
         if (animalsAtFrom != null) {
             animalsAtFrom.remove(animal);
 
-            //nie wiem czemu sie psuje jak nie usuwam, moja propozycja to tworzyć nową hashmapę codziennie na podstawie aliveAnimals,
-            // i tak trzeba przesunąć każde zwierzę, równie dobrze można je wstawić na nowo
             if (animalsAtFrom.isEmpty()) {
                 this.animals.remove(fromPosition);
             }
         }
 
         animal.move(this);
-
         this.place(animal);
     }
 
@@ -284,19 +280,8 @@ public class GrassField implements WorldMap {
     }
 
     @Override
-    public String toString() {
-        Boundary drawCorners = getCurrentBounds();
-        return visualizer.draw(drawCorners.leftDownCorner(), drawCorners.rightUpCorner());
-    }
-
-    @Override
     public Boundary getCurrentBounds() {
         return new Boundary(leftDownCorner, rightUpCorner);
-    }
-
-    @Override
-    public UUID getId() {
-        return this.id;
     }
 
     public void addListener(MapChangeListener listener) {
@@ -307,7 +292,7 @@ public class GrassField implements WorldMap {
         listeners.remove(listener);
     }
 
-    protected void mapChanged() {
+    private void mapChanged() {
         for (MapChangeListener listener : listeners)
             listener.mapChanged(this, "Another day has passed");
     }
@@ -325,7 +310,7 @@ public class GrassField implements WorldMap {
             sumOfChildren+=animal.getNumberOfChildren();
         }
         for (Animal animal : deadAnimals){
-            sumOfAge+=animal.getAge();
+            sumOfAge += animal.getAge();
         }
 
         double averageEnergy = (double) sumOfEnergy / animalsNumber;

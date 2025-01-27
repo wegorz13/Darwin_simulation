@@ -1,4 +1,4 @@
-package agh.ics.oop.model.util;
+package agh.ics.oop.model.records;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ public record SimulationConfig(int basePopulation,
                                int childCost,
                                int minMutations,
                                int maxMutations,
-                               int grassCalory,
+                               int grassCalorificValue,
                                int baseEnergy,
                                int readyToParent,
                                int numberOfReservoirs,
@@ -30,7 +30,7 @@ public record SimulationConfig(int basePopulation,
         map.put("childCost", childCost);
         map.put("minMutations", minMutations);
         map.put("maxMutations", maxMutations);
-        map.put("grassCalory", grassCalory);
+        map.put("grassCalorificValue", grassCalorificValue);
         map.put("baseEnergy", baseEnergy);
         map.put("readyToParent", readyToParent);
         map.put("numberOfReservoirs", numberOfReservoirs);
