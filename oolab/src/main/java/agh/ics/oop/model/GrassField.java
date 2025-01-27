@@ -9,7 +9,7 @@ import java.util.*;
 
 
 public class GrassField implements WorldMap {
-    private final Map<Vector2d, Grass> grasses;
+    protected final Map<Vector2d, Grass> grasses;
     private final Map<Vector2d,List<Water>> waters = new HashMap<>();
     private final Map<Vector2d, ArrayList<Animal>> animals = new HashMap<Vector2d, ArrayList<Animal>>();
     private final List<WaterReservoir> reservoirs = new ArrayList<>();
@@ -107,13 +107,13 @@ public class GrassField implements WorldMap {
         return new Animal(parent1.getPosition(), genotype,config.childCost() * 2, config.oldNotGold(), (int)(Math.random()*(parent1.getGenotype().getSize())));
     }
 
-    private void movingStage() {
+    protected void movingStage() {
         for (Animal animal : aliveAnimals) {
             this.move(animal);
         }
     }
 
-    private void eatingStage(){
+    protected void eatingStage(){
         List<Grass> eatenGrass = new ArrayList<>();
         for (Grass grass : grasses.values()){
             List<Animal> animalsAtPosition = animals.get(grass.getPosition());
@@ -137,7 +137,7 @@ public class GrassField implements WorldMap {
         }
     }
 
-    private void clearingStage() {
+    protected void clearingStage() {
         int recentlyDead = 0;
 
         for (Map.Entry<Vector2d, ArrayList<Animal>> entry : this.animals.entrySet()) {
@@ -176,7 +176,7 @@ public class GrassField implements WorldMap {
         }
     }
 
-    private void lovingStage() {
+    protected void lovingStage() {
         for (List<Animal> animalsAtPosition : animals.values()) {
             if (animalsAtPosition.size() >= 2) {
                 Animal bestAnimal1 = animalsAtPosition.getFirst();
@@ -208,7 +208,7 @@ public class GrassField implements WorldMap {
         }
     }
 
-    private void pollinationStage(){
+    protected void pollinationStage(){
         for (int numberOfGrass = 0; numberOfGrass < config.grassPerDay(); numberOfGrass++) {
             try {
                 Grass grass = grassGenerator.iterator().next();

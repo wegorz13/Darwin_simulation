@@ -30,10 +30,6 @@ public class Animal implements WorldElement, Comparable<Animal> {
         this.animalPath = "url('animal" + (int)(Math.random() * 4 + 1) + ".png');";;
     }
 
-    public MapDirection getOrientation() {
-        return orientation;
-    }
-
     public Vector2d getPosition() {
         return position;
     }

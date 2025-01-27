@@ -21,7 +21,7 @@
         <HBox spacing="10" alignment="CENTER" >
             <VBox fx:id="statisticsBox" spacing="10" alignment="CENTER" style="-fx-font-size: 20px;">
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <LineChart fx:id="animalPopulationChart" animated="false" style="-fx-max-width: 150px; -fx-max-height: 100px">
+                    <LineChart fx:id="animalPopulationChart" animated="false" style="-fx-max-width: 250px; -fx-max-height: 100px">
                         <xAxis>
                             <NumberAxis/>
                         </xAxis>
@@ -35,7 +35,7 @@
                     <Label fx:id="animalsLabel" text="0"/>
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <LineChart fx:id="grassPopulationChart" animated="false" style="-fx-max-width: 150px; -fx-max-height: 100px">
+                    <LineChart fx:id="grassPopulationChart" animated="false" style="-fx-max-width: 250px; -fx-max-height: 100px">
                         <xAxis>
                             <NumberAxis />
                         </xAxis>
