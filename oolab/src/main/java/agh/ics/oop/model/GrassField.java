@@ -332,7 +332,6 @@ public class GrassField implements WorldMap {
         double averageLifetime = (double) sumOfAge / animalsNumber;
         double averageChildren = (double) sumOfChildren / animalsNumber;
 
-        // Zdecydowanie do zmiany
         for (int y = 0; y < config.mapHeight(); y++) {
             for (int x = 0; x < config.mapWidth(); x++) {
                 if (isOccupied(new Vector2d(x, y))) {

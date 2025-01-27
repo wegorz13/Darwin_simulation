@@ -19,17 +19,37 @@
             fx:controller="agh.ics.oop.presenter.SimulationPresenter">
     <center>
         <HBox spacing="10" alignment="CENTER" >
-            <VBox fx:id="statisticsBox" spacing="10" alignment="CENTER" style="-fx-font-size: 25px;">
+            <VBox fx:id="statisticsBox" spacing="10" alignment="CENTER" style="-fx-font-size: 20px;">
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Animal population" />
+                    <LineChart fx:id="animalPopulationChart" animated="false" style="-fx-max-width: 150px; -fx-max-height: 100px">
+                        <xAxis>
+                            <NumberAxis/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis  />
+                        </yAxis>
+                    </LineChart>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Animal population: " />
                     <Label fx:id="animalsLabel" text="0"/>
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Number of grass:" />
+                    <LineChart fx:id="grassPopulationChart" animated="false" style="-fx-max-width: 150px; -fx-max-height: 100px">
+                        <xAxis>
+                            <NumberAxis />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis/>
+                        </yAxis>
+                    </LineChart>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="Grass population: " />
                     <Label fx:id="grassLabel" text="0" />
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Free position number" />
+                    <Label text="Number of free positions: " />
                     <Label fx:id="freePositionLabel" text="0" />
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">

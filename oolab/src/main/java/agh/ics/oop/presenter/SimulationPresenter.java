@@ -10,6 +10,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -18,8 +21,11 @@ public class SimulationPresenter implements MapChangeListener {
     private Simulation simulation;
     private static final int GRIDPANEHEIGHT = 800;
     private static final int GRIDPANEWIDTH = 800;
+    private static final int MAX_CHART_DATA_SIZE=100;
     private boolean showPreferredPositions = false;
     private boolean showGenotypeCarriers = false;
+    private XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> grassSeries = new XYChart.Series<>();
 
     @FXML
     private GridPane mapGrid;
@@ -29,6 +35,19 @@ public class SimulationPresenter implements MapChangeListener {
     private Label partAgeLabel, partEnergyLabel, grassConsumedLabel, partChildrenLabel, descendantsLabel, partGenotypeLabel, activeGeneLabel, dayOfDeathLabel;
     @FXML
     private VBox inspectionBox,statisticsBox;
+    @FXML
+    private LineChart<Number, Number> animalPopulationChart;
+    @FXML
+    private LineChart<Number, Number> grassPopulationChart;
+
+    public void initialize(){
+        animalSeries.setName("Animals");
+        grassSeries.setName("Grass");
+        animalPopulationChart.setCreateSymbols(false);
+        grassPopulationChart.setCreateSymbols(false);
+        animalPopulationChart.getData().add(animalSeries);
+        grassPopulationChart.getData().add(grassSeries);
+    }
 
     public void setMap(GrassField map) {
         this.map = map;
@@ -126,10 +145,10 @@ public class SimulationPresenter implements MapChangeListener {
 
                 mapGrid.add(cellPane, x - bounds.leftDownCorner().getX() + 1, bounds.rightUpCorner().getY() - y + 1);
                 GridPane.setHalignment(mapGrid.getChildren().getLast(), HPos.CENTER);
-                updateStatistics(currentStatistics);
-                updateSubjectStatistics();
             }
         }
+        updateStatistics(currentStatistics);
+        updateSubjectStatistics();
     }
 
     private void updateStatistics(Statistics statistics){
@@ -140,6 +159,27 @@ public class SimulationPresenter implements MapChangeListener {
         lifetimeLabel.setText(String.format("%.2f",statistics.averageLifetime()));
         childrenLabel.setText(String.format("%.2f",statistics.averageNumberOfChildren()));
         genotypeLabel.setText(statistics.mostPopularGenotype().toString());
+
+        int currentDay = map.getDayOfSimulation();
+
+        animalSeries.getData().add(new XYChart.Data<>(currentDay, statistics.animalsNumber()));
+        grassSeries.getData().add(new XYChart.Data<>(currentDay, statistics.grassNumber()));
+
+        if (animalSeries.getData().size() > MAX_CHART_DATA_SIZE) {
+            animalSeries.getData().removeFirst();
+        }
+        if (grassSeries.getData().size() > MAX_CHART_DATA_SIZE) {
+            grassSeries.getData().removeFirst();
+        }
+        NumberAxis animalXAxis = (NumberAxis) animalPopulationChart.getXAxis();
+        animalXAxis.setAutoRanging(false);
+        animalXAxis.setLowerBound(Math.max(0, currentDay - MAX_CHART_DATA_SIZE));
+        animalXAxis.setUpperBound(currentDay);
+
+        NumberAxis grassXAxis = (NumberAxis) grassPopulationChart.getXAxis();
+        grassXAxis.setAutoRanging(false);
+        grassXAxis.setLowerBound(Math.max(0, currentDay - MAX_CHART_DATA_SIZE));
+        grassXAxis.setUpperBound(currentDay);
     }
 
     private void updateSubjectStatistics() {
