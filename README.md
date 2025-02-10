@@ -2,7 +2,10 @@
 
 #### This project is a Java application that simulates life cycle of animals inspired by Darwin's theory of evolution. GUI was built in JavaFX, tests were implemented with jUnit.
 
-Authors:
+#### Authors:
+
+[Filip Węgrzyn](https://github.com/wegorz13)  
+[Kacper Kopiec](https://github.com/KacperKopiec)
 
 ## Menu
 
